@@ -1,0 +1,390 @@
+# envscan probe catalog - single source of truth for probe ids, tiers and scopes.
+#
+# Each implementation declares which probes it provides, and exactly what each one
+# reads or runs, in spec/footprint/<impl>.toml (ps = envscan.ps1, sh = envscan.sh,
+# cmd = envscan.cmd fallback collector). tools/build.py validates that every
+# footprint id exists here and generates the per-script tables, docs/PROBES.md and
+# the README footprint from these files.
+#
+# Fields
+#   id     lowercase "area.name"; the implementing function is probe_<id with . -> _>
+#   title  short human title (ASCII, no tabs or pipes)
+#   tier   default | deep | net   (default = quiet, zero network traffic)
+#   scope  machine | user | process | mixed  (whose view of the system the facts describe)
+#   about  one line: why the probe matters to an application
+
+[meta]
+name = "envscan"
+version = "1.0.0"
+schema = "envscan/1"
+
+[[probe]]
+id = "os.identity"
+title = "Operating system identity"
+tier = "default"
+scope = "machine"
+about = "OS family, version, build, edition, kernel, architecture, domain or directory join."
+
+[[probe]]
+id = "os.time_locale"
+title = "Time zone, locale and encodings"
+tier = "default"
+scope = "mixed"
+about = "Time zone, locale, decimal separator and code pages change parsing, sorting and file encodings."
+
+[[probe]]
+id = "os.health"
+title = "Uptime, load and pending reboot"
+tier = "default"
+scope = "machine"
+about = "Last boot, load and whether a reboot is pending (installers and updates may be blocked)."
+
+[[probe]]
+id = "os.updates"
+title = "Installed OS updates"
+tier = "default"
+scope = "machine"
+about = "Hotfix inventory; legacy systems need specific updates for UCRT, SHA-2 and TLS 1.2."
+
+[[probe]]
+id = "hw.cpu"
+title = "CPU"
+tier = "default"
+scope = "machine"
+about = "Model, cores and instruction sets (AVX, AVX2, AVX-512, NEON) required by prebuilt binaries."
+
+[[probe]]
+id = "hw.memory"
+title = "Memory and swap"
+tier = "default"
+scope = "machine"
+about = "Physical memory, available memory, swap or page file."
+
+[[probe]]
+id = "hw.storage"
+title = "Volumes and free space"
+tier = "default"
+scope = "machine"
+about = "Mounted volumes, file system types, free space, network and removable volumes."
+
+[[probe]]
+id = "hw.gpu"
+title = "GPU"
+tier = "default"
+scope = "machine"
+about = "Display adapters and drivers (CUDA, OpenGL and headless rendering)."
+
+[[probe]]
+id = "limits.process"
+title = "Process resource limits"
+tier = "default"
+scope = "process"
+about = "Open files, processes, stack, locked memory and core dump limits (soft and hard)."
+
+[[probe]]
+id = "limits.kernel"
+title = "Kernel tunables"
+tier = "default"
+scope = "machine"
+about = "inotify, max_map_count, somaxconn, pid and thread limits, ptrace and namespace settings."
+
+[[probe]]
+id = "limits.cgroup"
+title = "Control group limits"
+tier = "default"
+scope = "process"
+about = "Container or slice CPU, memory and pids limits that are smaller than the host."
+
+[[probe]]
+id = "net.ports"
+title = "Port ranges and reservations"
+tier = "default"
+scope = "machine"
+about = "Ephemeral ranges, excluded or reserved port ranges, unprivileged port start, HTTP URL ACLs."
+
+[[probe]]
+id = "user.identity"
+title = "Running user"
+tier = "default"
+scope = "user"
+about = "User, groups, elevation, home directory and whether the account exists in passwd."
+
+[[probe]]
+id = "user.profile"
+title = "User profile and folder redirection"
+tier = "default"
+scope = "user"
+about = "Roaming, temporary or mandatory profile, folder redirection, OneDrive, home on a network share."
+
+[[probe]]
+id = "user.privileges"
+title = "Token privileges, group policy result, sudo rights"
+tier = "deep"
+scope = "user"
+about = "Full token and privilege list, applied user GPOs, sudo rules (may raise security alerts)."
+
+[[probe]]
+id = "env.vars"
+title = "Environment variables"
+tier = "default"
+scope = "mixed"
+about = "Process, user and machine environment (secret values redacted)."
+
+[[probe]]
+id = "env.path"
+title = "PATH analysis"
+tier = "default"
+scope = "mixed"
+about = "PATH entries: missing, duplicate, relative, network and user-writable directories."
+
+[[probe]]
+id = "shell.info"
+title = "Shells and script hosts"
+tier = "default"
+scope = "mixed"
+about = "Shell implementations and versions, PowerShell language mode and execution policy, umask."
+
+[[probe]]
+id = "shell.userland"
+title = "Userland tool flavors"
+tier = "default"
+scope = "machine"
+about = "GNU, BSD or busybox variants of sed, awk, grep, tar, date and find (script portability)."
+
+[[probe]]
+id = "sec.app_control"
+title = "Application control and hardening"
+tier = "default"
+scope = "machine"
+about = "AppLocker, SRP, WDAC, Smart App Control, SELinux, AppArmor, fapolicyd, seccomp, SIP, Gatekeeper."
+
+[[probe]]
+id = "sec.crypto"
+title = "Crypto policy"
+tier = "default"
+scope = "machine"
+about = "FIPS mode, TLS protocol policy, .NET strong crypto, system crypto policy."
+
+[[probe]]
+id = "sec.av"
+title = "Antivirus state and security policy hive"
+tier = "deep"
+scope = "machine"
+about = "Registered antivirus products, Defender attack-surface policy, full policy hive."
+
+[[probe]]
+id = "tls.trust"
+title = "Trusted root certificates"
+tier = "default"
+scope = "mixed"
+about = "Enterprise and TLS-inspection roots, root auto-update, bundles and per-runtime CA settings."
+
+[[probe]]
+id = "pkg.sources"
+title = "Package sources, mirrors and tool proxies"
+tier = "default"
+scope = "mixed"
+about = "Registry and mirror configuration for npm, pip, Maven, Gradle, NuGet, cargo, Go, OS repos and git."
+
+[[probe]]
+id = "pkg.caches"
+title = "Offline package caches"
+tier = "default"
+scope = "user"
+about = "Local dependency caches that make offline builds possible."
+
+[[probe]]
+id = "pkg.installed"
+title = "Installed software and packages"
+tier = "default"
+scope = "mixed"
+about = "OS package inventory and installed applications."
+
+[[probe]]
+id = "pkg.features"
+title = "Optional OS features"
+tier = "default"
+scope = "machine"
+about = "Enabled Windows optional features (IIS, .NET 3.5, WSL, Hyper-V, containers)."
+
+[[probe]]
+id = "tools.inventory"
+title = "Tool and runtime inventory"
+tier = "default"
+scope = "mixed"
+about = "Which runtimes, compilers and tools exist, their versions, paths and binary architecture."
+
+[[probe]]
+id = "runtime.version_managers"
+title = "Version managers"
+tier = "default"
+scope = "user"
+about = "rustup, volta, asdf, mise, pyenv, nvm and similar: installed versions, read without running shims."
+
+[[probe]]
+id = "runtime.java"
+title = "Java installations"
+tier = "default"
+scope = "mixed"
+about = "JDKs and JREs found via JAVA_HOME, PATH and known locations (from their release files)."
+
+[[probe]]
+id = "tls.java_cacerts"
+title = "Java truststore contents"
+tier = "deep"
+scope = "machine"
+about = "Whether the JDK truststore contains the enterprise roots (runs keytool)."
+
+[[probe]]
+id = "runtime.dotnet"
+title = ".NET runtimes"
+tier = "default"
+scope = "machine"
+about = ".NET Framework release, .NET SDKs and runtimes."
+
+[[probe]]
+id = "runtime.python"
+title = "Python interpreters"
+tier = "default"
+scope = "mixed"
+about = "Python interpreters if any, including Windows Store aliases and the py launcher."
+
+[[probe]]
+id = "toolchain.msvc"
+title = "Visual Studio and Windows SDK"
+tier = "default"
+scope = "machine"
+about = "Visual Studio instances (vswhere), Windows SDKs and MSBuild."
+
+[[probe]]
+id = "native.deps"
+title = "Native libraries and drivers"
+tier = "default"
+scope = "machine"
+about = "C runtime (glibc, musl, UCRT), libstdc++, OpenSSL, VC++ redistributables, WebView2, ODBC drivers."
+
+[[probe]]
+id = "net.interfaces"
+title = "Network interfaces"
+tier = "default"
+scope = "machine"
+about = "Interfaces, addresses, MTU, gateways and DNS servers."
+
+[[probe]]
+id = "net.routes"
+title = "Routing"
+tier = "default"
+scope = "machine"
+about = "Default gateways and routing table."
+
+[[probe]]
+id = "net.dns"
+title = "Name resolution configuration"
+tier = "default"
+scope = "machine"
+about = "DNS servers, search suffixes, hosts file entries and resolver order."
+
+[[probe]]
+id = "net.proxy"
+title = "Proxy configuration"
+tier = "default"
+scope = "mixed"
+about = "Proxy environment, WinHTTP (services) versus WinINET/PAC (user), system and package-manager proxies."
+
+[[probe]]
+id = "net.listening"
+title = "Listening ports"
+tier = "default"
+scope = "machine"
+about = "TCP ports already in use on this host."
+
+[[probe]]
+id = "net.netstat"
+title = "Socket table (netstat)"
+tier = "deep"
+scope = "machine"
+about = "Full socket table via netstat where no quiet source exists."
+
+[[probe]]
+id = "net.firewall"
+title = "Host firewall"
+tier = "default"
+scope = "machine"
+about = "Host firewall state where readable without admin rights."
+
+[[probe]]
+id = "net.reachability"
+title = "Reachability of configured internal endpoints"
+tier = "net"
+scope = "process"
+about = "DNS and TCP checks against proxies and mirrors found in local configuration only."
+
+[[probe]]
+id = "fs.mounts"
+title = "Mounts and mount options"
+tier = "default"
+scope = "machine"
+about = "File systems and options (noexec, nosuid, ro) for temp, shared memory, home and root."
+
+[[probe]]
+id = "fs.locations"
+title = "Writable locations"
+tier = "default"
+scope = "user"
+about = "Which candidate install, temp and data directories this user can write, and their free space."
+
+[[probe]]
+id = "fs.semantics"
+title = "File system semantics"
+tier = "default"
+scope = "mixed"
+about = "Case sensitivity, symlink and hard link creation, long paths, short names, name length limits."
+
+[[probe]]
+id = "fs.exec_test"
+title = "Execution test in writable locations"
+tier = "deep"
+scope = "user"
+about = "Writes and runs a trivial script in each writable location (may log application-control events)."
+
+[[probe]]
+id = "proc.list"
+title = "Running processes"
+tier = "default"
+scope = "machine"
+about = "Process inventory (only this user's command lines are visible)."
+
+[[probe]]
+id = "svc.list"
+title = "Services"
+tier = "default"
+scope = "machine"
+about = "Services or units, their state, start mode and service accounts."
+
+[[probe]]
+id = "sched.tasks"
+title = "Scheduled tasks and timers"
+tier = "default"
+scope = "mixed"
+about = "Scheduled tasks, cron entries, systemd timers and user lingering."
+
+[[probe]]
+id = "virt.platform"
+title = "Virtualization and containers"
+tier = "default"
+scope = "machine"
+about = "Hypervisor, VM vendor, container or Kubernetes, WSL, container engine sockets."
+
+[[probe]]
+id = "virt.engine"
+title = "Container engine details"
+tier = "deep"
+scope = "machine"
+about = "docker info or podman info against a local socket only."
+
+[[probe]]
+id = "session.context"
+title = "Session context"
+tier = "default"
+scope = "process"
+about = "Console, RDP, SSH or service session, interactive or headless, terminal and display."

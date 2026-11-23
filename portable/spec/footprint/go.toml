@@ -1,0 +1,85 @@
+# Footprint of envscan-linux-* (the static Go binary): exactly what each probe reads or runs.
+# A probe is implemented by the binary if and only if it is listed here.
+# Vocabulary: "read <path>" file read; "list <path>" directory listing; "test <path>" existence
+# or permission test; "write <path>" file create/delete; "run <command>" external process
+# (cwd /, stdin /dev/null, spec/child_env.toml applied: only the [child_env_keep] variables of the
+# scan-start environment, then [child_env], DOCKER_CONTEXT=default, LC_ALL=C except the
+# locale commands of os.time_locale, its own process group killed with SIGKILL at --timeout, output
+# capped at 4 MiB); "syscall <name>" a direct system call instead of a command.
+# All reads honour the test-only ENVSCAN_ROOT prefix (reported in run.test_root).
+# Shared at scan start (not repeated per probe): syscall uname (instead of run uname -s -n -r -m);
+# read /proc/self/mounts or /proc/mounts (fallback run mount); read /proc/self/status (Umask line;
+# the umask itself is never changed); syscall fstat and readlink /proc/self/fd/0, 1, 2 (terminal
+# check); read /proc/<parent pid>/limits (Max open files: the inherited soft limit, because the Go
+# runtime raises its own soft RLIMIT_NOFILE at start); the environment (os.Environ, kept in memory,
+# never written to disk); process PATH (version-manager shim directories). No CRLF self-repair,
+# EBCDIC check or shell detection (a binary has none of these). The private temp directory
+# (envscan.<pid>.<n>, mode 0700, exclusive mkdir) is created in TMPDIR, /tmp, /var/tmp or HOME,
+# never on a network or autofs mount (the mount table is read before it is created), and removed at
+# exit, also on SIGINT, SIGTERM, SIGHUP and SIGQUIT (running children are killed first).
+# Every path that comes from the environment, HOME, a glob or a symbolic link is vetted against
+# the mount table before any test or read, component by component (a link is followed only after
+# its target was vetted; at most 32 links): nothing on a network or autofs mount is touched, and
+# credential stores (spec/policy.toml [credentials]: ~/.ssh, ~/.aws, ~/.kube, .netrc,
+# .git-credentials, auth.json, ~/.docker/config.json, shell history, private keys) are never
+# listed, tested or read, nor reached through a link. Files are opened only after lstat says
+# regular file, with O_NOFOLLOW and O_NONBLOCK, and checked again with fstat: FIFOs, devices and
+# sockets are never opened.
+# Network and autofs mounts (from the mount table) are never touched: PATH entries there are not
+# searched, configuration paths there are not read or globbed (logged in envscan.log), no write
+# test is made there, and the default output folder skips them.
+# Never executed (inventory only): version-manager shims, links to them, corepack shims, .ps1
+# shims, Windows app aliases, WSL /mnt/<letter>/ binaries, binaries on network mounts or reached
+# through a link into a credential store, binaries in world-writable folders without the sticky
+# bit, docker/podman when DOCKER_HOST, DOCKER_CONTEXT, CONTAINER_HOST or CONTAINER_CONNECTION
+# select a remote engine.
+
+"os.identity" = ["syscall uname (at scan start)", "run uname -p (when present)", "read /etc/os-release, /usr/lib/os-release, /etc/lsb-release, /etc/redhat-release, /etc/debian_version, /etc/alpine-release", "read /proc/version, /proc/sys/kernel/osrelease", "run getconf LONG_BIT (when present)", "read /etc/hosts (own host name), /etc/resolv.conf (domain line)", "test /etc/krb5.conf, /etc/sssd/sssd.conf (presence only)"]
+"os.time_locale" = ["environment TZ, LANG, LANGUAGE, LC_*", "read /etc/timezone, /etc/localtime link target", "clock: local UTC offset (Go time zone from TZ or /etc/localtime)", "run date +%z (only when TZ holds a POSIX rule Go cannot evaluate, when present)", "run locale, locale charmap, locale -k decimal_point d_fmt (when present, user locale)", "run locale -a (UTF-8 availability only, when present)"]
+"os.health" = ["read /proc/uptime, /proc/loadavg", "run uptime (only without /proc/uptime, when present)", "test /var/run/reboot-required, /run/reboot-required; read reboot-required.pkgs", "list /lib/modules (installed kernels)", "syscall uname (running kernel release, at scan start)"]
+"hw.cpu" = ["read /proc/cpuinfo", "read /sys/devices/system/cpu/online (when /proc/cpuinfo has no processor lines)", "run getconf _NPROCESSORS_ONLN (last fallback, when present)"]
+"hw.memory" = ["read /proc/meminfo", "run getconf _PHYS_PAGES, getconf PAGESIZE (fallback, when present)"]
+"hw.storage" = ["syscall statfs on each local mount point of the mount table (network, autofs and pseudo file systems never queried)", "mount table read at scan start (file system types)", "read /sys/block/<device>/removable"]
+"hw.gpu" = ["run nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader (when present)", "run lspci (when present; display controllers only)", "list /dev/dri"]
+"limits.process" = ["syscall getrlimit (nofile, nproc, stack, core, memlock, as)", "read /proc/self/limits (fallback when getrlimit gives nothing)"]
+"limits.kernel" = ["read /proc/sys/fs/{file-max,file-nr,inotify/max_user_watches,inotify/max_user_instances}, /proc/sys/vm/{max_map_count,overcommit_memory,swappiness}, /proc/sys/kernel/{pid_max,threads-max,yama/ptrace_scope,unprivileged_userns_clone,perf_event_paranoid}, /proc/sys/user/max_user_namespaces, /proc/sys/net/core/somaxconn", "read /sys/kernel/mm/transparent_hugepage/enabled", "read /etc/security/limits.conf, /etc/security/limits.d/*.conf", "read /etc/systemd/system.conf, /etc/systemd/user.conf (DefaultLimit*)"]
+"limits.cgroup" = ["read /proc/self/cgroup", "read cgroup v2 memory.max, cpu.max, pids.max (own cgroup and its parents)", "read cgroup v1 memory.limit_in_bytes, cpu.cfs_quota_us, cpu.cfs_period_us, pids.max"]
+"net.ports" = ["read /proc/sys/net/ipv4/ip_local_port_range, ip_unprivileged_port_start, ip_local_reserved_ports"]
+"user.identity" = ["syscall getuid, getgid, getgroups", "read /etc/passwd (own uid only), /etc/group (names of own groups only); never NSS or getent", "environment HOME, SHELL, USER, LOGNAME", "search PATH for sudo, doas (presence only)"]
+"user.profile" = ["environment HOME, XDG_*", "mount table read at scan start (file system of HOME)", "test HOME (directory, writable from mode and ids; not when it is on a network or autofs mount)", "read ~/.config/user-dirs.dirs (not on a network or autofs mount)"]
+"user.privileges" = ["run sudo -n -l (never prompts; may be logged)"]
+"env.vars" = ["process environment (snapshot at scan start, kept in memory; redacted before it is written)"]
+"env.path" = ["process PATH", "test each PATH entry (directory, writable from mode and ids; local file systems only, also through links; relative entries against PWD)"]
+"shell.info" = ["environment SHELL", "read /etc/shells", "list /bin/sh link target", "run bash --version, zsh --version (when present)", "search PATH for pwsh (presence only)", "umask at scan start (/proc/self/status)"]
+"shell.userland" = ["run sed --version, awk --version, grep --version, tar --version, date --version, find --version (when present; failures identify BSD/busybox variants)", "run awk -W version (when awk --version is not recognised)", "list /bin/busybox link targets"]
+"sec.app_control" = ["read /sys/fs/selinux/enforce, /etc/selinux/config", "read /sys/module/apparmor/parameters/enabled, /proc/self/attr/apparmor/current, /proc/self/attr/current", "read /proc/self/status (Seccomp, NoNewPrivs, CapEff)", "list /etc/fapolicyd", "run systemctl is-active fapolicyd (when fapolicyd is installed)", "read /sys/kernel/security/lockdown", "mount table read at scan start (root read-only)"]
+"sec.crypto" = ["read /proc/sys/crypto/fips_enabled", "read /etc/crypto-policies/config", "run openssl version -a", "environment OPENSSL_CONF"]
+"tls.trust" = ["read CA bundles listed in spec/configs.toml (certificate count)", "list custom anchor directories from spec/configs.toml", "run openssl x509 -noout -subject -enddate -in <anchor> (each locally added anchor, at most 25)", "environment TLS variables", "test $JAVA_HOME/lib/security/cacerts (stat: size and date; not on a network or autofs mount)"]
+"pkg.sources" = ["read package-manager and repository config files from spec/configs.toml (redacted)", "environment package variables", "run git config --list --show-origin --no-includes (fallback git config --list --no-includes, then git config --list for a git before 1.7.10) in a new empty directory under the scanner temp directory, GIT_CEILING_DIRECTORIES set, GIT_DIR and GIT_WORK_TREE unset; a HOME, XDG_CONFIG_HOME, GIT_CONFIG_GLOBAL or GIT_CONFIG_SYSTEM on a network or autofs mount is replaced for git by an empty local directory", "run git config --list --no-includes --file <include> for each unconditional include.path on a local path, one level deep, each file once (includes on network or autofs mounts, credential stores, ~user/ and %(prefix)/ paths, nested includes and includeIf are never read, only noted)"]
+"pkg.caches" = ["list cache directories from spec/configs.toml (readdir; top-level entry counts, at most 10000 per directory, then truncated)"]
+"pkg.installed" = ["run dpkg-query -W, rpm -qa, apk info -v, pacman -Q, brew list --versions (whichever exist)"]
+"tools.inventory" = ["test PATH directories and the known install directories in spec/tools.toml", "run <tool> <version args> for each found tool (spec/tools.toml), cwd = /, stdin = /dev/null, timeout; never version-manager shims (decided by the directory that holds the file, however it was found), Windows app aliases, presence-only tools or binaries on network or autofs mounts", "read the first 512 bytes of each found executable (ELF/Mach-O/PE machine type)"]
+"runtime.version_managers" = ["list the version directories in spec/tools.toml (no shim is executed)", "process PATH (entries that are version-manager shim directories)"]
+"runtime.java" = ["read <jdk>/release for JAVA_HOME, PATH java and the known JDK directories (/usr/lib/jvm/*, /usr/java/*, /opt/*jdk*, /opt/java/*, /Library/Java/JavaVirtualMachines/*, ~/Library/Java/JavaVirtualMachines/*, ~/.sdkman/candidates/java/*, ~/.jdks/*; nothing on a network or autofs mount, also through links)", "run java -XshowSettings:properties -version (only when PATH java is a launcher stub)"]
+"tls.java_cacerts" = ["test $JAVA_HOME/bin/keytool (not on a network or autofs mount)", "run keytool -list -v -cacerts -storepass changeit (fallback -keystore <java home>/lib/security/cacerts)"]
+"runtime.dotnet" = ["run dotnet --list-sdks, dotnet --list-runtimes (when present and not a shim)", "test $DOTNET_ROOT/dotnet and the known dotnet directories (not on a network or autofs mount)", "list <dotnet root>/sdk, <dotnet root>/shared (when dotnet is not executed)"]
+"runtime.python" = ["test PATH and known locations for python3, python, python2, python3.N (not on network or autofs mounts: no glob or test there)", "run <python> --version (never shims, Windows app aliases or binaries on network or autofs mounts)"]
+"native.deps" = ["run getconf GNU_LIBC_VERSION, ldd --version", "list /lib/ld-musl-*", "run ldconfig -p", "list /lib*, /usr/lib*, /usr/local/lib for libssl and libstdc++", "read libstdc++.so.6 (GLIBCXX version strings, at most 32 MiB)", "read /etc/odbcinst.ini", "run fc-list (count only; XDG_CACHE_HOME in the scanner temp directory, so no cache is written to HOME)"]
+"net.interfaces" = ["run ip -o link, ip -o addr (fallback ifconfig -a, then read /proc/net/dev)", "read /proc/net/route (default gateways)", "byte order of /proc/net/route from the binary architecture (compile time; nothing read)"]
+"net.routes" = ["run ip route and ip -6 route (fallback read /proc/net/route)", "read /proc/net/ipv6_route (when ip -6 route did not run)", "on-link, multipath nexthop and 0/1 + 128/1 full-tunnel routes count as default routes; no default route is concluded only when both address families were checked (a missing or failing route command leaves its family unchecked)", "byte order of /proc/net/route from the binary architecture (compile time; nothing read)"]
+"net.dns" = ["read /etc/resolv.conf, /run/systemd/resolve/resolv.conf (behind the systemd-resolved stub), /etc/nsswitch.conf, /etc/hosts"]
+"net.proxy" = ["environment proxy variables", "read /etc/environment, /etc/apt/apt.conf, /etc/apt/apt.conf.d/*, /etc/yum.conf, /etc/dnf/dnf.conf (proxy settings, found by setting name)", "package-manager proxy settings found by pkg.sources"]
+"net.listening" = ["read /proc/net/tcp, /proc/net/tcp6 (LISTEN state)", "byte order of the addresses from the binary architecture (compile time; nothing read)"]
+"net.netstat" = ["run netstat -an (fallback ss -an)"]
+"net.firewall" = ["read /etc/ufw/ufw.conf", "run systemctl is-active firewalld nftables iptables"]
+"net.reachability" = ["DNS lookup (Go built-in resolver: /etc/hosts, /etc/resolv.conf servers; A and AAAA; at most 5 s) and TCP connect (3 s, no HTTP, no TLS) to a vetted address of at most 20 proxy and internal mirror hosts found in net.proxy and pkg.sources only; the address is checked again right before connect; stopping before the scan budget ends; an IPv4 address only in 10/8, 172.16/12, 192.168/16, 100.64/10; an IPv6 address only in 2000::/3 and fc00::/7, never in fd00:ec2::/32 or with a zone id", "never public registries (spec public_hosts: not even looked up) or cloud metadata and link-local hosts (spec net_never: checked on the name before any lookup and on every resolved address); IP literals are not looked up; single-label names (no dot) are never looked up; other names are looked up by their absolute name (trailing dot: no search domains); only plain host names (letters, digits, . _ -) and IP addresses"]
+"fs.mounts" = ["mount table read at scan start (/proc/self/mounts, /proc/mounts, else run mount)"]
+"fs.locations" = ["create and remove one new test directory (mkdir of a unique name) in each candidate directory ($TMPDIR, /tmp, /var/tmp, /dev/shm, $HOME, $HOME/.local, $HOME/bin, /opt, /usr/local, current directory, binary directory); never in Desktop, Documents, the XDG Desktop/Documents directories, cloud-synchronised folders or on network/autofs mounts (not even an existence test there)", "read ~/.config/user-dirs.dirs (XDG Desktop/Documents)", "syscall statfs on each tested candidate (free space)"]
+"fs.semantics" = ["create a new private directory under the scanner temp directory, write test files there (case sensitivity) and remove it", "syscall symlink, link (in that directory)", "run getconf NAME_MAX, PATH_MAX (when present)"]
+"fs.exec_test" = ["per-user directories only: create a new directory in the scanner temp directory and under $HOME, ~/.local and ~/bin (never Desktop, Documents, synchronised folders or network/autofs mounts, not even an existence test there), write a #!/bin/sh script there (mode 700), run it, remove the directory; not run when /bin/sh is absent", "read ~/.config/user-dirs.dirs (XDG Desktop/Documents)"]
+"proc.list" = ["run ps -A -o pid= -o ppid= -o uid= -o comm= -o args= (numeric uids; no NSS lookups)", "read /etc/passwd (names for those uids)", "read /etc/nsswitch.conf (passwd sources); only when they are all local: fallback ps -A -o ... -o user= ..., then ps -ef"]
+"svc.list" = ["run systemctl list-units --type=service --all --no-legend --no-pager, systemctl list-unit-files --type=service --no-legend --no-pager", "list /etc/init.d (fallback)"]
+"sched.tasks" = ["run crontab -l (own crontab)", "list /etc/cron.d, /etc/cron.hourly, /etc/cron.daily, /etc/cron.weekly, /etc/cron.monthly (not on a network or autofs mount)", "run systemctl list-timers --all --no-pager --no-legend", "run loginctl show-user <own user> -p Linger"]
+"virt.platform" = ["read /.dockerenv, /run/.containerenv, /proc/1/cgroup, /proc/self/mountinfo", "environment KUBERNETES_SERVICE_HOST, container, WSL_DISTRO_NAME", "read /sys/class/dmi/id/{sys_vendor,product_name}", "read /proc/cpuinfo (hypervisor flag)", "run systemd-detect-virt (when present)", "test /dev/kvm, /var/run/docker.sock, $XDG_RUNTIME_DIR/podman/podman.sock"]
+"virt.engine" = ["run docker --context default info (not when DOCKER_HOST is tcp://, ssh://, http:// or https:// or DOCKER_CONTEXT is set)", "test podman on PATH (podman info is never run; the version is in tools.inventory)"]
+"session.context" = ["environment SSH_CONNECTION, SSH_TTY, DISPLAY, WAYLAND_DISPLAY, XDG_SESSION_TYPE, XDG_CURRENT_DESKTOP, TERM", "syscall ioctl TCGETS on stdin, stdout and stderr (at scan start)"]

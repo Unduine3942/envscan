@@ -1,0 +1,4 @@
+#!/bin/sh
+# test stub: logs its arguments to ES_STUB_LOG and reports a fast TCP connect
+printf 'curl %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+printf '0.012'

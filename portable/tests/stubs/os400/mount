@@ -1,0 +1,12 @@
+#!/bin/sh
+# test stub: IBM i PASE mount (AIX-style columns, unverified)
+printf 'mount %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+[ -n "${ES_STUB_NO_MOUNT:-}" ] && exit 1
+cat <<'EOF'
+  node       mounted        mounted over    vfs       date        options
+-------- ---------------  ---------------  ------ ------------ ---------------
+         /QSYS.LIB        /QSYS.LIB        qsys   Nov 01 09:00 rw
+         /QOpenSys        /QOpenSys        udfs   Nov 01 09:00 rw
+         /dev/QASP01      /                udfs   Nov 01 09:00 rw
+ntshost  /share           /QNTC/ntshost    nfs3   Nov 01 09:30 rw,soft
+EOF

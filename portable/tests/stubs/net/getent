@@ -1,0 +1,32 @@
+#!/bin/sh
+# test stub: getent ahosts|hosts NAME with fixed answers; every call is logged to ES_STUB_LOG
+printf 'getent %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+case $2 in
+  proxy.corp) a=10.0.0.5 ;;
+  nexus.corp) a=10.0.0.6 ;;
+  rebind.corp) a=169.254.169.254 ;;
+  v6only.corp) a=fd00::25 ;;
+  2852039166) a=169.254.169.254 ;;
+  # IPv6 ranges: contacted only in 2000::/3 and fc00::/7 outside fd00:ec2::/32
+  ula.corp) a=fd12:3456::7 ;;
+  gua.corp) a=2001:db8::5 ;;
+  ll6.corp) a=fe90::1 ;;
+  nat64.corp) a=64:ff9b::a00:5 ;;
+  mapped.corp) a=::ffff:10.0.0.5 ;;
+  ec2v6.corp) a=fd00:0ec2:0::1 ;;
+  zone.corp) a=fd00::1%eth0 ;;
+  # IPv4: contacted only in 10/8, 172.16/12, 192.168/16 and 100.64/10
+  public.corp) a=203.0.113.5 ;;
+  mixedv4.corp) a='203.0.113.6 192.168.1.5' ;;
+  # lookup failures: a timeout and an error are not a definitive "no address"
+  slow.corp) sleep 4; a=10.0.0.7 ;;
+  broken.corp) echo 'getent: internal error' >&2; exit 3 ;;
+  *:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*) a=$2 ;;
+  *) exit 2 ;;
+esac
+for a in $a; do
+  case $1 in
+    ahosts) printf '%s       STREAM %s\n%s       DGRAM\n%s       RAW\n' "$a" "$2" "$a" "$a" ;;
+    *) printf '%s       %s\n' "$a" "$2" ;;
+  esac
+done

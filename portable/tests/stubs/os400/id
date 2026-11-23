@@ -1,0 +1,3 @@
+#!/bin/sh
+# test stub: IBM i PASE id
+printf '%s\n' "uid=1001(QSECOFR) gid=0(system) groups=0(system)"

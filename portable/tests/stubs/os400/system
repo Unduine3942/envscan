@@ -1,0 +1,10 @@
+#!/bin/sh
+# test stub: IBM i PASE "system" command. Every call is logged; only display commands answer.
+printf '%s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+case $1 in
+  "DSPSYSVAL SYSVAL(QSECURITY)") printf '%s\n' "System value . . . . : QSECURITY" "  Security level . . . . . : 40" ;;
+  "DSPSYSVAL SYSVAL(QCCSID)") printf '%s\n' "System value . . . . : QCCSID" "  Coded character set identifier . . : 37" ;;
+  "DSPSYSVAL SYSVAL(QTIMZON)") printf '%s\n' "System value . . . . : QTIMZON" "  Time zone . . . . . . . : QN0900UTC1" ;;
+  "DSPSYSVAL SYSVAL(QLANGID)") printf '%s\n' "System value . . . . : QLANGID" "  Language ID . . . . . . : ENU" ;;
+  *) printf '%s\n' "CPF0006: command not allowed in this test" >&2; exit 1 ;;
+esac

@@ -1,0 +1,3 @@
+#!/bin/sh
+# test stub: a GPU tool that never answers (killed by the --timeout watchdog)
+sleep 120

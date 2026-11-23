@@ -1,0 +1,4 @@
+#!/bin/sh
+# test stub: z/OS onetstat -h (home addresses)
+printf 'onetstat %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+printf '%s\n' "MVS TCP/IP onetstat CS V2R5       TCPIP Name: TCPIP" "Home address list:" "Address         Link         Flg" "10.30.1.9       OSAQDIO1     P" "127.0.0.1       LOOPBACK"

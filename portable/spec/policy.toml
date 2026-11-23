@@ -1,0 +1,60 @@
+# Read and mount policy shared by every implementation. tools/target_sh.py and tools/target_ps.py
+# turn these lists into data (sh case patterns, ps1 arrays); nothing here is written twice by hand.
+# All names are lower case: matching ignores case (macOS and Windows disks do), and a path
+# component also loses trailing dots and spaces before it is compared.
+
+# Filesystem types that mean "network": never stat'ed, never written (sh mount table).
+network_fs = [
+    "nfs", "nfs4", "cifs", "smb", "smb2", "smb3", "smbfs", "sshfs", "fuse.sshfs", "afs", "davfs", "fuse.davfs",
+    "glusterfs", "fuse.glusterfs", "ceph", "fuse.ceph", "lustre", "gpfs", "9p", "autofs", "ncpfs", "coda",
+    "fuse.rclone", "fuse.s3fs", "fuse.gcsfuse",
+    # a FUSE mount without a subtype tells nothing about where its data lives
+    "fuse",
+    # cluster, parallel and shared-disk file systems; macOS AFP/WebDAV; AIX/HP-UX NFS v3 names;
+    # ClearCase MVFS
+    "beegfs", "gfs2", "ocfs2", "orangefs", "pvfs2", "panfs", "cvfs", "wekafs", "quobyte", "juicefs",
+    "afpfs", "webdav", "nfs3", "stnfs", "mvfs", "dfs",
+]
+
+# Any type that starts with one of these is a network mount as well (FUSE file systems are often
+# network clients: sshfs, s3fs, blobfuse, goofys, ...), unless it is in local_fuse.
+network_fs_prefixes = ["fuse."]
+
+# FUSE file systems that keep their data on this machine by construction (lxcfs views of /proc,
+# snap and squashfs images, block-device file systems) plus fuse-overlayfs, the root file system
+# of rootless containers. Layering types (mergerfs, bindfs, gocryptfs, encfs, archivemount) are NOT
+# here: they commonly sit on NFS, CIFS or sshfs folders. Unknown fuse.* types, and "fuse." with an
+# empty subtype, are treated as network (fail closed). The subtype is chosen by whoever mounts it,
+# so this list cannot stop a local user who disguises a network mount; it is a default, not a guard.
+local_fuse = [
+    "fuse.lxcfs", "fuse.fuse-overlayfs", "fuse.snapfuse", "fuse.squashfuse", "fuse.squashfuse_ll",
+    "fuse.erofsfuse", "fuse.ntfs-3g", "fuse.exfat",
+]
+
+# CA trust stores (certificates, no private keys): their file names are exempt from the key
+# extensions below, because tls.trust and tls.java_cacerts read them on purpose.
+trust_store_names = [
+    "cacerts", "ca-certificates.crt", "ca-bundle.crt", "tls-ca-bundle.pem", "ca-bundle.pem", "cert.pem",
+]
+
+# Credential stores: never opened, listed or tested for existence (docs/DEVELOPING.md rule 4).
+# CA trust stores (cacerts, spec ca_bundles) are exempt from the key extensions on purpose.
+[credentials]
+# A path component (or component sequence, "/" separated) anywhere in the path.
+folders = [
+    ".ssh", ".aws", ".kube", ".gnupg", ".azure", ".config/gcloud", "serviceaccount/token",
+    # the whole Kubernetes service-account mount: token, ca.crt, namespace and the ..data/ target
+    # that the token symlink points at
+    "kubernetes.io/serviceaccount", "serviceaccount/..data",
+]
+# The last component(s) of the path.
+files = [
+    ".netrc", "_netrc", ".git-credentials", "auth.json", ".docker/config.json", ".pgpass",
+    ".config/gh/hosts.yml", ".terraform.d/credentials.tfrc.json", ".vault-token", ".pypirc",
+    ".gem/credentials", ".cargo/credentials.toml", ".m2/settings-security.xml",
+    "id_rsa", "id_ecdsa", "id_ed25519", ".history", ".zhistory", ".histfile",
+]
+# Shell history: any file whose name ends this way.
+suffixes = ["_history", "_history.txt"]
+# Key and key-store files by extension.
+key_extensions = ["pem", "key", "p12", "pfx", "jks", "keystore"]

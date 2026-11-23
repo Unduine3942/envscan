@@ -1,0 +1,6 @@
+#!/bin/sh
+# test stub: IBM i PASE df -P -k -l (ES_STUB_DF_NO_L=1: -l is refused, as on systems whose df has no -l)
+printf 'df %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+case " $* " in *" -l "*) [ -n "${ES_STUB_DF_NO_L:-}" ] && { printf '%s\n' "df: illegal option -- l" >&2; exit 1; } ;; esac
+printf '%s\n' "Filesystem    1024-blocks      Used Available Capacity Mounted on"
+printf '%s\n' "/dev/QASP01       8388608   2097152   6291456      25% /"

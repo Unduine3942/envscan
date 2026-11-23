@@ -1,0 +1,4 @@
+/dev/sda1 / ext4 rw,relatime 0 0
+proc /proc proc rw,nosuid,nodev,noexec 0 0
+/dev/sdb1 /mnt/data\040disk ext4 rw,noexec 0 0
+/dev/sdc1 /mnt/back\134slash xfs rw 0 0

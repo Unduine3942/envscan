@@ -1,0 +1,17 @@
+#!/bin/sh
+# test stub: z/OS mount with no arguments (layout assumed from IBM's documentation, unverified):
+# the file system name, its mount point in parentheses, then a line with type and mode.
+printf 'mount %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+[ -n "${ES_STUB_NO_MOUNT:-}" ] && exit 1
+cat <<'EOF'
+OMVS.ROOT        (/)
+  ZFS, Read/Write, Device:1
+OMVS.U.ZFS       (/u)
+  ZFS, Read/Write, Device:2
+NFS.PROJ         (/nfs/proj)
+  NFS, Read/Write, Device:3
+AUTO.HOME        (/home)
+  AUTOMNT, Read/Write, Device:4
+UNKNOWN.FS       (/mystery)
+  Read/Write
+EOF

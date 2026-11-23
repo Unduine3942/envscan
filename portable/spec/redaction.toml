@@ -1,0 +1,212 @@
+# Secret redaction rules, applied by every implementation to environment values,
+# configuration text, registry values, command lines, raw command output and the log
+# before anything is written. Over-redaction is acceptable; a leaked secret is not.
+#
+# NAME RULES (environment variable names, config keys, registry value names)
+#   1. camelCase boundaries become separators: sessionKey -> session Key,
+#      HTTPProxyPassword -> HTTP Proxy Password ([a-z0-9][A-Z] and [A-Z]+[A-Z][a-z]).
+#   2. The result is upper-cased and split into segments on every run of characters
+#      outside [A-Z0-9]. normalized = segments joined with "_"; joined = segments
+#      concatenated.
+#   3. Not secret when the plain upper-cased name is in exact_exceptions, or when
+#      normalized ends with a suffix in suffix_exceptions (paths, sockets, methods).
+#   4. Secret when any segment is in name_segments, or joined contains a word in
+#      name_contains, or joined ends with a word in name_suffixes.
+#   A secret name keeps its name; its value becomes the placeholder.
+#
+# LENGTH CAP: a value, line or command line longer than 131072 characters is not scanned: it
+#   becomes "<redacted: too long>" as a whole (fail closed; the longest real command line is
+#   32767 characters, and raw output is capped at 65536 characters per probe afterwards).
+#   Linear-time rules and this cap keep hostile input from holding up a scan.
+#
+# VALUE RULES (every value, every output line), in this order:
+#   private key   text containing private_key_marker (case-sensitive) -> the whole value
+#                 becomes "<redacted: private key>"
+#   url userinfo  scheme://user:password@host -> scheme://user:<redacted>@host; the password
+#                 runs to the LAST "@" before the first "/", "?", "#" or whitespace, so an
+#                 unencoded "@" inside it is covered. scheme://<userinfo>@host where the
+#                 userinfo has no ":" and is at least token_min_length long (a token used
+#                 as user name) -> scheme://<redacted>@host
+#   conda token   a URL path segment after "/t/" of 8+ characters -> placeholder
+#   bare userinfo user:password@host without a scheme, anywhere in the text (proxy settings
+#                 written without a scheme, "via user:pw@proxy:8080" in a sentence) ->
+#                 user:<redacted>@host. It starts a token (text start, whitespace, a quote, or
+#                 one of ; , = ( |, so every entry of "http=u:a@p:80;https=u:b@p:80" counts). The user runs to the first ":" (no whitespace, quote or "/";
+#                 "@" allowed for UPN logins such as john.doe@corp.com, "\" for DOMAIN\user).
+#                 The password (no whitespace, quote, "/" or "\") runs to an "@" followed by
+#                 a host ([A-Za-z0-9._-]+ or [IPv6]), an optional :port of 1-5 digits, then
+#                 the end, whitespace, a quote or one of / , ; ) ] } > < | & # ? \. When that
+#                 check fails at an "@", the password runs on to the next "@" (an unencoded
+#                 "@" in the password). git@host:path, user@host:/path and
+#                 image:tag@sha256:<hex> stay as they are.
+#                 Bounds (so the scan stays linear): the user is 1-128 characters and
+#                 may not contain ":" "=" ";" "," "(" or "|" (a token start follows each of
+#                 those), the password 1-256. Fallback, fail closed: in a token (a run
+#                 without whitespace or quote) whose first ":" is followed by a password
+#                 (no "/" or "\") of 257+ characters and an "@", or whose part before the first
+#                 ":" is 129+ characters (any character but whitespace, quote and ":") and
+#                 is followed by a password and an "@", the WHOLE token becomes the
+#                 placeholder (no "user:<redacted>@host" form). The placeholder holds no ":",
+#                 so a second pass changes nothing.
+#   tokens        any run of [A-Za-z0-9_-.+/=] that starts with a token_prefixes entry
+#                 and is at least token_min_length long -> placeholder
+#   auth schemes  "Bearer <8+ chars>" and "Basic <8+ chars>" -> credentials replaced;
+#                 <key ending in "authorization"> [quote] [:=] [quote] [scheme] <credentials>
+#                 (Authorization, Proxy-Authorization, HTTP_AUTHORIZATION, ...) -> credentials
+#                 replaced. A quote may be escaped (\" or \'). The credentials stop at
+#                 whitespace, a quote, "," ";" or a backslash followed by a quote.
+#   pair keys     <key>=<value> for a key in pair_keys (case-insensitive, any position:
+#                 connection strings "Pwd=x;", query strings) -> value replaced. The value
+#                 is a quoted string or an unquoted run (see below).
+#   quoted string "..." in which a backslash escapes the next character (JSON "a\"b"), or
+#                 '...' in which '' stands for a quote. An unterminated quote runs to the end
+#                 of the text, so a broken quote never exposes the rest. Inside a string
+#                 (JSON in an environment value, a shell argument), \"...\" and \'...\' are
+#                 escaped-quoted values: the content up to the next \" (or \') is the value,
+#                 and the delimiters are kept.
+#   key/value     anywhere in the text, every <key><quote?><space?>(= or :)<space?><value>
+#                 (the quote after the key may be escaped: {\"password\":\"x\"})
+#                 whose key is a secret name (NAME RULES; keys ending in AUTHORIZATION are
+#                 left to the auth-scheme rule). Keys are runs of [A-Za-z0-9_.-] not preceded
+#                 by one of those characters. The value is a quoted string (content
+#                 replaced), "{" or "[" (everything to the end of the value replaced), or an
+#                 unquoted run. Exception: a key right after "<" or "</" that is followed
+#                 directly by ":" and an xml_elements name (case-insensitive, not followed by a
+#                 word character) is an XML namespace prefix, not a key (<token:password>,
+#                 </ns:clientSecret>). Any other "<key:..." stays a key/value pair
+#                 (<password:hunter2> loses "hunter2>..."; over-redaction wins).
+#   unquoted run  characters up to whitespace. A sequence of , ; & # } ] ) " ' < > | belongs
+#                 to the value only when a value character (anything else but whitespace)
+#                 follows it and that is not the start of another key (a run of
+#                 [A-Za-z0-9_.-], an optional quote, optional spaces, then = or :):
+#                 "Pwd=a;b" and "Pwd=ab)cd" lose the whole value, "Pwd=a;Database=x" keeps
+#                 "Database=x", "Pwd=a;" keeps the ";", "(token=abc)" keeps the ")".
+#                 The placeholder counts as one value character: redacting twice gives the same
+#                 text, and "Pwd=<redacted>rest" (a value that only starts with the
+#                 placeholder) still loses "rest".
+#
+# LINE RULES (configuration lines; then the value rules)
+#   whole line    [indent] [- ] [export |set ] ["']key["'] (= or :) <rest>: when key is a
+#                 secret name the rest of the line becomes the placeholder
+#   space pair    <secret key> <whitespace> <quoted value> (Groovy `password "x"`, yarn classic
+#                 `"//reg/:_authToken" "x"`) -> quoted content replaced. An unquoted value after
+#                 whitespace alone is not touched (too many false matches).
+#   xml           <element>...</element> for xml_elements and attribute="..." for
+#                 xml_attributes (case-insensitive) -> content replaced. The start tag is
+#                 "<", an optional namespace prefix ([A-Za-z_][A-Za-z0-9_.-]* then ":"), the
+#                 element name (not followed by a word character), attributes, ">"; the ">"
+#                 that ends the tag is the first one outside "..." and '...' attribute values.
+#                 It is self-closing (left alone) only when "/" comes right before that ">"
+#                 ("/" or "/>" inside an attribute value does not count). A name before ":" is taken as the
+#                 prefix only when an element name follows it (<token:password> is
+#                 "password" with prefix "token"); otherwise the tag is read without a prefix
+#                 (<password:x> is "password"). The content runs from the ">" to the element's
+#                 own closing tag "</[prefix:]element" when that appears later on the line,
+#                 else to the next "</" on the line, whatever it holds (CDATA, nested tags);
+#                 an empty content is replaced too. With no "</" later on the line, a
+#                 non-blank rest of the line is replaced (fail closed). A closing tag inside an
+#                 XML comment (<!-- ... --> on the same line) does not count, neither while
+#                 looking for the content's end nor for the multi-line end below; a comment
+#                 that does not end on its line hides the rest of that line. In LINE mode a
+#                 start tag without ">" on its line is left alone. Only the first start tag
+#                 that has no "</" after it can open the multi-line state below;
+#                 key="..secret word.." value="..." and name="..secret word.." value="..."
+#                 -> value replaced (NuGet, app.config); <add key="<url>" value="..."> ->
+#                 value replaced (NuGet apikeys)
+#
+# TEXT RULES (whole configuration files and raw output)
+#   private key   as above, for the whole text
+#   blocks        a line whose secret key has an empty value, "{" or "[" opens a block:
+#                 every following line indented deeper (and "- " items at the same
+#                 indent) becomes indent + placeholder, except lines holding only closing
+#                 brackets. The block ends at the first line indented no deeper. YAML block
+#                 scalars (| |- > >- |2) after a secret key open a block the same way.
+#   multi-line    `"""` or `'''` after a secret key: everything to the closing triple quote;
+#                 a secret xml element left open on its line (no "</" after its start tag)
+#                 when the rest of the line is blank, or when the start tag is the first thing
+#                 on the line (after indentation): every following line to the closing tag
+#                 "</element" (with its prefix, "</ns:element") is replaced up to that tag.
+#                 A start tag in the middle of other text ("usage: tool <token> [opts]") only
+#                 loses the rest of its own line. What follows the closing tag on the line
+#                 that ends the multi-line value goes through the line rules and the text rules
+#                 again (another secret element may start there).
+#                 A secret start tag whose ">" is not on its line (attributes over several
+#                 lines) opens a start-tag state: the following lines go through the line rules
+#                 as usual until the line holding the tag's ">"; what follows that ">" is then
+#                 treated as content right after a start tag that begins its line. The state
+#                 ends without effect at a line whose first non-blank character is "<" before
+#                 any ">" of the tag.
+#
+# COMMAND LINES (process, service and task command lines, AutoRun, env values, the log)
+#   options       (-|--|/)<name containing an option_words entry>(=|:|whitespace)<value>
+#                 -> value replaced ("quoted value" counts as one value)
+#   user options  -u / -U / --user / --proxy-user user:secret -> user:<redacted>, also attached
+#                 (-ubob:secret)
+#   tool options  when a tool in tool_options ("tool:option") appears in the line as a
+#                 program name (after start, whitespace, quote, / \ ; & | ( or =, with an
+#                 optional .exe, .cmd, .bat or .com, followed by whitespace, a quote or the
+#                 end), every one of its options is redacted: (whitespace)option<value>
+#                 attached -> option<redacted>, (whitespace)option<whitespace><value> ->
+#                 option <redacted>. Options starting with "-" are case-sensitive (mysql -p is
+#                 the password, -P the port); options starting with "/" and tool names are
+#                 not. A quoted value counts as one value.
+#   headers       -H / --header "Name: value" where Name contains a header_words entry ->
+#                 value replaced
+#   then the value rules.
+
+placeholder = "<redacted>"
+
+name_segments = [
+  "PASSWORD", "PASSWD", "PWD", "PASS", "PASSPHRASE", "PASSCODE", "PSWD", "PW", "SECRET", "SECRETS",
+  "TOKEN", "TOKENS", "APIKEY", "KEY", "KEYS", "CREDENTIAL", "CREDENTIALS", "CREDS", "AUTH",
+  "AUTHTOKEN", "AUTHORIZATION", "BEARER", "JWT", "COOKIE", "COOKIES", "SAS", "SIG", "SIGNATURE",
+  "CONNSTR", "DSN", "PAT", "PIN", "OTP", "EXTRAHEADER", "WEBHOOK",
+]
+
+name_contains = [
+  "PASSWORD", "PASSWD", "SECRET", "TOKEN", "APIKEY", "ACCESSKEY", "PRIVATEKEY",
+  "CONNECTIONSTRING", "CONNSTR", "CREDENTIAL", "AUTHTOKEN",
+]
+
+name_suffixes = ["KEY", "KEYS", "PWD", "PW", "PASS", "AUTH", "AUTHIDENT"]
+
+exact_exceptions = [
+  "PWD", "OLDPWD", "KEY", "SSH_AUTH_SOCK", "XAUTHORITY", "GIT_ASKPASS", "SSH_ASKPASS",
+  "SUDO_ASKPASS", "KEYTIMEOUT", "GPG_TTY", "PATHEXT", "PSMODULEPATH", "TOKENIZERS_PARALLELISM",
+]
+
+suffix_exceptions = ["_PATH", "_DIR", "_HOME", "_FILE", "_SOCK", "_ASKPASS", "_METHOD", "_TYPE"]
+
+token_prefixes = [
+  "ghp_", "gho_", "ghu_", "ghs_", "ghr_", "github_pat_", "glpat-", "xoxb-", "xoxp-", "xoxa-",
+  "xoxr-", "xoxs-", "AKIA", "ASIA", "AIza", "sk-", "sk_live_", "rk_live_", "npm_", "pypi-", "eyJ",
+]
+
+token_min_length = 20
+
+pair_keys = ["password", "pwd", "accountkey", "sharedaccesskey", "sharedaccesssignature"]
+
+option_words = [
+  "password", "passwd", "pwd", "pass", "passphrase", "secret", "token", "apikey", "api-key",
+  "credential", "auth", "key", "pw", "cookie", "jwt", "otp", "pin", "dsn", "sas", "connstr", "creds",
+]
+
+# Tools that take a password as a short option (see "tool options" above).
+tool_options = [
+  "mysql:-p", "mysqldump:-p", "mysqladmin:-p", "mysqlimport:-p", "mysqlcheck:-p", "mysqlshow:-p",
+  "mariadb:-p", "mariadb-dump:-p", "mariadb-admin:-p", "mongo:-p", "mongosh:-p", "mongodump:-p",
+  "mongorestore:-p", "mongoexport:-p", "mongoimport:-p", "sshpass:-p", "redis-cli:-a",
+  "ldapsearch:-w", "ldapmodify:-w", "ldapadd:-w", "ldapdelete:-w", "ldappasswd:-w",
+  "ldapwhoami:-w", "smbclient:-U", "rpcclient:-U", "smbget:-U", "sqlcmd:-P", "bcp:-P", "osql:-P",
+  "isql:-P", "psexec:-p", "psexec64:-p", "az:-p", "azure.cli:-p", "schtasks:/RP", "schtasks:/P",
+  "docker:-p", "podman:-p", "oc:-p", "twine:-p", "7z:-p", "7za:-p", "rar:-p", "unrar:-p", "zip:-P",
+  "unzip:-P", "signtool:/p", "certutil:-p", "xfreerdp:/p", "rdesktop:-p", "ssh-keygen:-N",
+]
+
+header_words = ["auth", "token", "key", "secret", "cookie", "session", "signature", "password", "credential"]
+
+xml_elements = ["password", "privateKey", "passphrase", "token", "secret", "apiKey", "clientSecret"]
+
+xml_attributes = ["password", "ClearTextPassword", "token", "apikey", "secret"]
+
+private_key_marker = "PRIVATE KEY"

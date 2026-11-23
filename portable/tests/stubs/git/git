@@ -1,0 +1,33 @@
+#!/bin/sh
+# test stub: "git config --list [--show-origin] [--no-includes] [--file F]" for pkg.sources.
+# ES_STUB_GIT_LIST: a file of "origin TAB key=value" lines, the answer to --list (without
+# --show-origin only the key=value part); --file F prints F, which holds key=value lines.
+# ES_STUB_GIT_OLD=1: a git older than 1.7.10, which knows neither --show-origin nor --no-includes.
+# Every call is logged to ES_STUB_LOG; ES_STUB_GIT_HOMES, when set, gets the HOME of each call.
+printf 'git %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+if [ -n "${ES_STUB_GIT_HOMES:-}" ]; then printf '%s\n' "$HOME" >>"$ES_STUB_GIT_HOMES"; fi
+[ "$1" = config ] || exit 1
+shift
+origin=0; file=
+while [ $# -gt 0 ]; do
+  case $1 in
+    --show-origin|--no-includes)
+      if [ "${ES_STUB_GIT_OLD:-}" = 1 ]; then
+        printf 'error: unknown option `%s'"'"'\nusage: git config [options]\n' "${1#--}" >&2
+        exit 129
+      fi
+      [ "$1" = --show-origin ] && origin=1 ;;
+    --file) file=$2; shift ;;
+    --list) ;;
+    *) exit 1 ;;
+  esac
+  shift
+done
+if [ -n "$file" ]; then
+  [ -r "$file" ] || { echo "fatal: unable to read config file '$file'" >&2; exit 1; }
+  cat "$file"
+elif [ "$origin" = 1 ]; then
+  cat "$ES_STUB_GIT_LIST"
+else
+  cut -f 2- "$ES_STUB_GIT_LIST"
+fi

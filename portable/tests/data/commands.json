@@ -1,0 +1,1384 @@
+{
+ "_about": "Captured raw command output and the facts it must parse to; groups are run by tests/test_sh_commands.py and reused by the Go port. See that file for what each group's facts mean.",
+ "groups": {
+  "arch": [
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86_64"
+    },
+    "name": "m_x86_64",
+    "output": "x86_64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86_64"
+    },
+    "name": "m_amd64",
+    "output": "amd64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86_64"
+    },
+    "name": "m_AMD64",
+    "output": "AMD64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86"
+    },
+    "name": "m_i386",
+    "output": "i386\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86"
+    },
+    "name": "m_i486",
+    "output": "i486\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86"
+    },
+    "name": "m_i586",
+    "output": "i586\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86"
+    },
+    "name": "m_i686",
+    "output": "i686\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "x86"
+    },
+    "name": "m_i86pc",
+    "output": "i86pc\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "arm64"
+    },
+    "name": "m_aarch64",
+    "output": "aarch64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "arm64"
+    },
+    "name": "m_arm64",
+    "output": "arm64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "arm"
+    },
+    "name": "m_armv6l",
+    "output": "armv6l\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "arm"
+    },
+    "name": "m_armv7l",
+    "output": "armv7l\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "arm"
+    },
+    "name": "m_armv8l",
+    "output": "armv8l\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "ppc64le"
+    },
+    "name": "m_ppc64le",
+    "output": "ppc64le\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "ppc64"
+    },
+    "name": "m_ppc64",
+    "output": "ppc64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "ppc"
+    },
+    "name": "m_ppc",
+    "output": "ppc\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "s390x"
+    },
+    "name": "m_s390x",
+    "output": "s390x\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "riscv64"
+    },
+    "name": "m_riscv64",
+    "output": "riscv64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "sparc64"
+    },
+    "name": "m_sun4u",
+    "output": "sun4u\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "sparc64"
+    },
+    "name": "m_sun4v",
+    "output": "sun4v\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "sparc"
+    },
+    "name": "m_sparc",
+    "output": "sparc\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "ia64"
+    },
+    "name": "m_ia64",
+    "output": "ia64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "mips"
+    },
+    "name": "m_mips64",
+    "output": "mips64\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "mips"
+    },
+    "name": "m_mipsel",
+    "output": "mipsel\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "other"
+    },
+    "name": "m_empty",
+    "output": "\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "other"
+    },
+    "name": "m_alpha",
+    "output": "alpha\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "other"
+    },
+    "name": "m_00F84C464C00",
+    "output": "00F84C464C00\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "other"
+    },
+    "name": "m_zos_machine_type",
+    "output": "8561\n"
+   },
+   {
+    "command": "uname -m",
+    "facts": {
+     "arch": "other"
+    },
+    "name": "m_pase_machine_serial",
+    "output": "00C0A5BA4C00\n"
+   }
+  ],
+  "df": [
+   {
+    "command": "df -P -k -l",
+    "facts": {
+     "volumes": [
+      {
+       "device": "/dev/sda2",
+       "free_mb": 60000,
+       "fstype": "ext4",
+       "mount": "/",
+       "total_mb": 100000
+      },
+      {
+       "device": "/dev/sda1",
+       "free_mb": 507,
+       "fstype": "vfat",
+       "mount": "/boot/efi",
+       "total_mb": 512
+      },
+      {
+       "device": "tmpfs",
+       "free_mb": 8000,
+       "fstype": "tmpfs",
+       "mount": "/dev/shm",
+       "total_mb": 8000
+      }
+     ]
+    },
+    "mounts_proc": "/dev/sda2 / ext4 rw,relatime 0 0\n/dev/sda1 /boot/efi vfat rw 0 0\ndevtmpfs /dev devtmpfs rw 0 0\ntmpfs /dev/shm tmpfs rw 0 0\n",
+    "name": "linux_two_volumes_pseudo_skipped",
+    "os": "linux",
+    "output": "Filesystem     1024-blocks      Used Available Capacity Mounted on\n/dev/sda2        102400000  40960000  61440000      40% /\n/dev/sda1           524288      5120    519168       1% /boot/efi\ndevtmpfs           4096000         0   4096000       0% /dev\ntmpfs              8192000         0   8192000       0% /dev/shm\n"
+   },
+   {
+    "command": "df -P -k -l",
+    "facts": {
+     "volumes": [
+      {
+       "device": "/dev/disk3s1s1",
+       "free_mb": 208247,
+       "fstype": "apfs",
+       "mount": "/",
+       "total_mb": 476120
+      },
+      {
+       "device": "/dev/disk4s1",
+       "free_mb": 1945,
+       "fstype": "msdos",
+       "mount": "/Volumes/My Disk",
+       "total_mb": 2048
+      }
+     ]
+    },
+    "mount_cmd": "/dev/disk3s1s1 on / (apfs, sealed, local, read-only, journaled)\nmap auto_home on /System/Volumes/Data/home (autofs, automounted, nobrowse)\n/dev/disk4s1 on /Volumes/My Disk (msdos, local, nodev, nosuid, noowners)\n",
+    "name": "macos_spaces_in_names_autofs_skipped",
+    "os": "darwin",
+    "output": "Filesystem    1024-blocks      Used Available Capacity  Mounted on\n/dev/disk3s1s1   487546976  11287728 213245400     6%    /\nmap auto_home             0         0         0   100%    /System/Volumes/Data/home\n/dev/disk4s1      2097152    104857   1992295     5%    /Volumes/My Disk\n"
+   },
+   {
+    "command": "df -P -k -l",
+    "facts": {
+     "volumes": [
+      {
+       "device": "/dev/hd4",
+       "free_mb": 1148,
+       "fstype": "jfs2",
+       "mount": "/",
+       "total_mb": 2048
+      },
+      {
+       "device": "/dev/hd2",
+       "free_mb": 483,
+       "fstype": "jfs2",
+       "mount": "/usr",
+       "total_mb": 3072
+      }
+     ]
+    },
+    "mount_cmd": "  node       mounted        mounted over    vfs       date        options      \n-------- ---------------  ---------------  ------ ------------ ---------------\n         /dev/hd4         /                jfs2   Nov 03 10:00 rw,log=/dev/hd8 \n         /dev/hd2         /usr             jfs2   Nov 03 10:00 rw,log=/dev/hd8 \n",
+    "name": "aix_posix_format",
+    "os": "aix",
+    "output": "Filesystem    1024-blocks      Used Available Capacity Mounted on\n/dev/hd4           2097152    921388   1175764      44% /\n/dev/hd2           3145728   2650308    495420      85% /usr\n"
+   },
+   {
+    "command": "df -P -k -l",
+    "facts": {
+     "volumes": [
+      {
+       "device": "/dev/xvdf",
+       "free_mb": 10239,
+       "fstype": "xfs",
+       "mount": "/data",
+       "total_mb": 10240
+      }
+     ]
+    },
+    "mounts_proc": "/dev/xvdf /data xfs rw 0 0\n",
+    "name": "dash_for_unavailable_capacity",
+    "os": "linux",
+    "output": "Filesystem     1024-blocks Used Available Capacity Mounted on\n/dev/xvdf         10485760    1024  10484736       -  /data\n"
+   },
+   {
+    "command": "df -P -k -l",
+    "facts": {
+     "volumes": []
+    },
+    "mounts_proc": "/dev/sda1 / ext4 rw 0 0\n",
+    "name": "header_only",
+    "os": "linux",
+    "output": "Filesystem     1024-blocks      Used Available Capacity Mounted on\n"
+   },
+   {
+    "command": "df -P -k -l",
+    "facts": {
+     "volumes": [
+      {
+       "device": "/dev/sda2",
+       "free_mb": 60000,
+       "fstype": "ext4",
+       "mount": "/",
+       "total_mb": 100000
+      },
+      {
+       "device": "/dev/sdb1",
+       "free_mb": 1000,
+       "fstype": null,
+       "mount": "/mnt/usb",
+       "total_mb": 2000
+      }
+     ]
+    },
+    "mounts_proc": "/dev/sda2 / ext4 rw,relatime 0 0\n",
+    "name": "volume_missing_from_mount_table",
+    "os": "linux",
+    "output": "Filesystem     1024-blocks      Used Available Capacity Mounted on\n/dev/sda2        102400000  40960000  61440000      40% /\n/dev/sdb1          2048000   1024000   1024000      50% /mnt/usb\n"
+   },
+   {
+    "command": "df -k -P <local mount points>  (z/OS: mount table first, never a plain df)",
+    "facts": {
+     "volumes": [
+      {
+       "device": "OMVS.ROOT",
+       "free_mb": 3000,
+       "fstype": "zfs",
+       "mount": "/",
+       "total_mb": 4000
+      },
+      {
+       "device": "OMVS.U.ZFS",
+       "free_mb": 500,
+       "fstype": "zfs",
+       "mount": "/u",
+       "total_mb": 1000
+      }
+     ]
+    },
+    "mount_cmd": "OMVS.ROOT        (/)\n  ZFS, Read/Write, Device:1\nOMVS.U.ZFS       (/u)\n  ZFS, Read/Write, Device:2\nNFS.PROJ         (/nfs/proj)\n  NFS, Read/Write, Device:3\nUNKNOWN.FS       (/mystery)\n  Read/Write\n",
+    "name": "zos_mount_table_with_nfs_and_unknown",
+    "os": "zos",
+    "output": "Filesystem 1024-blocks Used Available Capacity Mounted on\nOMVS.ROOT 4096000 1024000 3072000 25% /\nOMVS.U.ZFS 1024000 512000 512000 50% /u\n"
+   }
+  ],
+  "id": [
+   {
+    "command": "id",
+    "facts": {
+     "gid": 1000,
+     "groups": [
+      "bob",
+      "adm",
+      "sudo",
+      "docker"
+     ],
+     "is_admin": false,
+     "name": "bob",
+     "primary_group": "bob",
+     "uid": 1000
+    },
+    "name": "linux_sudo_user",
+    "output": "uid=1000(bob) gid=1000(bob) groups=1000(bob),4(adm),27(sudo),999(docker)\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 0,
+     "groups": [
+      "root"
+     ],
+     "is_admin": true,
+     "name": "root",
+     "primary_group": "root",
+     "uid": 0
+    },
+    "name": "linux_root",
+    "output": "uid=0(root) gid=0(root) groups=0(root)\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 1000,
+     "groups": [
+      "bob"
+     ],
+     "is_admin": false,
+     "name": "bob",
+     "primary_group": "bob",
+     "uid": 1000
+    },
+    "name": "linux_selinux_context",
+    "output": "uid=1000(bob) gid=1000(bob) groups=1000(bob) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 20,
+     "groups": [
+      "staff",
+      "everyone",
+      "localaccounts",
+      "admin",
+      "com.apple.sharepoint.group.1"
+     ],
+     "is_admin": false,
+     "name": "alice",
+     "primary_group": "staff",
+     "uid": 501
+    },
+    "name": "macos_admin",
+    "output": "uid=501(alice) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),80(admin),701(com.apple.sharepoint.group.1)\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 10,
+     "groups": [],
+     "is_admin": false,
+     "name": "bob",
+     "primary_group": "staff",
+     "uid": 100
+    },
+    "name": "solaris_no_groups_field",
+    "output": "uid=100(bob) gid=10(staff)\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 0,
+     "groups": [
+      "root",
+      "1000650000"
+     ],
+     "is_admin": false,
+     "name": "",
+     "primary_group": "root",
+     "uid": 1000650000
+    },
+    "name": "openshift_random_uid_no_names",
+    "output": "uid=1000650000 gid=0(root) groups=0(root),1000650000\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 500,
+     "groups": [
+      "SYS1",
+      "DEVGRP"
+     ],
+     "is_admin": false,
+     "name": "USER1",
+     "primary_group": "SYS1",
+     "uid": 1234
+    },
+    "name": "zos_racf_user",
+    "output": "uid=1234(USER1) gid=500(SYS1) groups=500(SYS1),501(DEVGRP)\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 0,
+     "groups": [],
+     "is_admin": true,
+     "name": "OMVSKERN",
+     "primary_group": "OMVSGRP",
+     "uid": 0
+    },
+    "name": "zos_superuser",
+    "output": "uid=0(OMVSKERN) gid=0(OMVSGRP)\n"
+   },
+   {
+    "command": "id",
+    "facts": {
+     "gid": 0,
+     "groups": [
+      "system"
+     ],
+     "is_admin": false,
+     "name": "QSECOFR",
+     "primary_group": "system",
+     "uid": 1001
+    },
+    "name": "os400_pase_profile",
+    "output": "uid=1001(QSECOFR) gid=0(system) groups=0(system)\n"
+   }
+  ],
+  "limits_proc": [
+   {
+    "command": "cat /proc/self/limits",
+    "facts": {
+     "address_space_soft": "unlimited",
+     "core_soft": 0,
+     "memlock_kb_soft": 65536,
+     "nofile_hard": 1048576,
+     "nofile_soft": 1024,
+     "nproc_hard": 63704,
+     "nproc_soft": 63704,
+     "stack_kb_soft": 8192
+    },
+    "name": "linux_typical",
+    "output": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              unlimited            unlimited            seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    unlimited            bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             63704                63704                processes \nMax open files            1024                 1048576              files     \nMax locked memory         67108864             67108864             bytes     \nMax address space         unlimited            unlimited            bytes     \n"
+   },
+   {
+    "command": "cat /proc/self/limits",
+    "facts": {
+     "address_space_soft": null,
+     "core_soft": "unlimited",
+     "memlock_kb_soft": 64,
+     "nofile_hard": 1073741816,
+     "nofile_soft": 1073741816,
+     "nproc_hard": "unlimited",
+     "nproc_soft": "unlimited",
+     "stack_kb_soft": 8192
+    },
+    "name": "container_low_nofile",
+    "output": "Limit                     Soft Limit           Hard Limit           Units     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        unlimited            unlimited            bytes     \nMax processes             unlimited            unlimited            processes \nMax open files            1073741816           1073741816           files     \nMax locked memory         65536                65536                bytes     \n"
+   }
+  ],
+  "limits_ulimit": [
+   {
+    "command": "ulimit -a",
+    "facts": {
+     "address_space_soft": "unlimited",
+     "core_soft": 0,
+     "memlock_kb_soft": 65536,
+     "nofile_hard": 1048576,
+     "nofile_soft": 1024,
+     "nproc_hard": 63704,
+     "nproc_soft": 63704,
+     "stack_kb_soft": 8192
+    },
+    "flags": {
+     "-Hn": "1048576",
+     "-Hu": "63704",
+     "-Sc": "0",
+     "-Sl": "65536",
+     "-Sn": "1024",
+     "-Ss": "8192",
+     "-Su": "63704",
+     "-Sv": "unlimited"
+    },
+    "name": "linux_bash",
+    "output": "real-time non-blocking time  (microseconds, -R) unlimited\ncore file size              (blocks, -c) 0\ndata seg size               (kbytes, -d) unlimited\nscheduling priority                 (-e) 0\nfile size                   (blocks, -f) unlimited\npending signals                     (-i) 63704\nmax locked memory           (kbytes, -l) 65536\nmax memory size             (kbytes, -m) unlimited\nopen files                          (-n) 1024\npipe size                (512 bytes, -p) 8\nPOSIX message queues         (bytes, -q) 819200\nreal-time priority                  (-r) 0\nstack size                  (kbytes, -s) 8192\ncpu time                   (seconds, -t) unlimited\nmax user processes                  (-u) 63704\nvirtual memory              (kbytes, -v) unlimited\nfile locks                          (-x) unlimited\n"
+   },
+   {
+    "command": "ulimit -a",
+    "facts": {
+     "address_space_soft": null,
+     "core_soft": 1073741312,
+     "memlock_kb_soft": null,
+     "nofile_hard": "unlimited",
+     "nofile_soft": 2000,
+     "nproc_hard": null,
+     "nproc_soft": null,
+     "stack_kb_soft": 32768
+    },
+    "flags": {
+     "-Hn": "unlimited",
+     "-Hp": null,
+     "-Hu": null,
+     "-Sc": "2097151",
+     "-Sl": null,
+     "-Sn": "2000",
+     "-Sp": null,
+     "-Ss": "32768",
+     "-Su": null,
+     "-Sv": null
+    },
+    "name": "aix_ksh_blocks",
+    "output": "time(seconds)        unlimited\nfile(blocks)         unlimited\ndata(kbytes)         131072\nstack(kbytes)        32768\nmemory(kbytes)       32768\ncoredump(blocks)     2097151\nnofiles(descriptors) 2000\nthreads(per process) unlimited\nprocesses(per user)  unlimited\n"
+   }
+  ],
+  "ps": [
+   {
+    "command": "ps -A -o pid= -o ppid= -o uid= -o comm= -o args=",
+    "facts": {
+     "count": 5,
+     "processes": [
+      {
+       "cmdline": null,
+       "name": "systemd",
+       "path": null,
+       "pid": 1,
+       "ppid": 0,
+       "user": "root"
+      },
+      {
+       "cmdline": null,
+       "name": "systemd-resolve",
+       "path": null,
+       "pid": 412,
+       "ppid": 1,
+       "user": "systemd-resolve"
+      },
+      {
+       "cmdline": "-bash",
+       "name": "bash",
+       "path": null,
+       "pid": 2210,
+       "ppid": 2100,
+       "user": "bob"
+      },
+      {
+       "cmdline": "/usr/bin/python3 app.py --port 8000",
+       "name": "python3",
+       "path": "/usr/bin/python3",
+       "pid": 2311,
+       "ppid": 2210,
+       "user": "bob"
+      },
+      {
+       "cmdline": null,
+       "name": "sleep",
+       "path": null,
+       "pid": 2400,
+       "ppid": 1,
+       "user": "999"
+      }
+     ]
+    },
+    "format": "uid",
+    "me": {
+     "uid": "1000",
+     "user": "bob"
+    },
+    "name": "linux_uid_format",
+    "output": "    1     0     0 systemd         /sbin/init splash\n  412     1   104 systemd-resolve /lib/systemd/systemd-resolved\n 2210  2100  1000 bash            -bash\n 2311  2210  1000 python3         /usr/bin/python3 app.py --port 8000\n 2400     1   999 sleep           sleep 100\n",
+    "passwd": "root:x:0:0:root:/root:/bin/bash\nsystemd-resolve:x:104:106:systemd Resolver:/run/systemd:/usr/sbin/nologin\nbob:x:1000:1000::/home/bob:/bin/bash\n"
+   },
+   {
+    "command": "ps -A -o pid= -o ppid= -o uid= -o comm= -o args=",
+    "facts": {
+     "count": 2,
+     "processes": [
+      {
+       "cmdline": null,
+       "name": "/sbin/launchd",
+       "path": null,
+       "pid": 1,
+       "ppid": 0,
+       "user": "0"
+      },
+      {
+       "cmdline": "/Applications/Safari.app/Contents/MacOS/Safari -psn_0_1234",
+       "name": "/Applications/Safari.app/Contents/MacOS/Safari",
+       "path": "/Applications/Safari.app/Contents/MacOS/Safari",
+       "pid": 501,
+       "ppid": 1,
+       "user": "501"
+      }
+     ]
+    },
+    "format": "uid",
+    "me": {
+     "uid": "501",
+     "user": "alice"
+    },
+    "name": "macos_uid_format",
+    "output": "    1     0     0 /sbin/launchd /sbin/launchd\n  501     1   501 /Applications/Safari.app/Contents/MacOS/Safari /Applications/Safari.app/Contents/MacOS/Safari -psn_0_1234\n",
+    "passwd": ""
+   },
+   {
+    "command": "ps -ef",
+    "facts": {
+     "count": 3,
+     "processes": [
+      {
+       "cmdline": null,
+       "name": "init",
+       "path": null,
+       "pid": 1,
+       "ppid": 0,
+       "user": "root"
+      },
+      {
+       "cmdline": "-bash",
+       "name": "-bash",
+       "path": null,
+       "pid": 2210,
+       "ppid": 2100,
+       "user": "bob"
+      },
+      {
+       "cmdline": "/usr/bin/python3 app.py --port 8000",
+       "name": "python3",
+       "path": "/usr/bin/python3",
+       "pid": 2311,
+       "ppid": 2210,
+       "user": "bob"
+      }
+     ]
+    },
+    "format": "ef",
+    "me": {
+     "uid": "1000",
+     "user": "bob"
+    },
+    "name": "linux_ef_fallback",
+    "output": "UID          PID    PPID  C STIME TTY          TIME CMD\nroot           1       0  0 10:00 ?        00:00:01 /sbin/init\nbob         2210    2100  0 10:15 pts/0    00:00:00 -bash\nbob         2311    2210  0 10:16 pts/0    00:00:02 /usr/bin/python3 app.py --port 8000\n",
+    "passwd": ""
+   },
+   {
+    "command": "ps -ef",
+    "facts": {
+     "count": 3,
+     "processes": [
+      {
+       "cmdline": null,
+       "name": "init",
+       "path": null,
+       "pid": 1,
+       "ppid": 0,
+       "user": "root"
+      },
+      {
+       "cmdline": "/opt/app/bin/server -c /etc/app.conf",
+       "name": "server",
+       "path": "/opt/app/bin/server",
+       "pid": 4100,
+       "ppid": 1,
+       "user": "bob"
+      },
+      {
+       "cmdline": "-ksh",
+       "name": "-ksh",
+       "path": null,
+       "pid": 5200,
+       "ppid": 4100,
+       "user": "bob"
+      }
+     ]
+    },
+    "format": "ef",
+    "me": {
+     "uid": "1000",
+     "user": "bob"
+    },
+    "name": "aix_ef_two_token_stime",
+    "output": "     UID     PID    PPID   C    STIME    TTY  TIME CMD\n    root       1       0   0   Nov 03      -  0:05 /etc/init\n     bob    4100       1   0   Nov 03      -  1:22 /opt/app/bin/server -c /etc/app.conf\n     bob    5200    4100   0 10:15:02  pts/0  0:00 -ksh\n",
+    "passwd": ""
+   }
+  ],
+  "uname": [
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "build01",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "x86_64",
+     "-n": "build01",
+     "-r": "5.15.0-91-generic",
+     "-s": "Linux"
+    },
+    "name": "linux_x86_64",
+    "output": "Linux build01 5.15.0-91-generic #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023 x86_64 x86_64 GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "arm64",
+     "hostname": "pi4",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "aarch64",
+     "-n": "pi4",
+     "-r": "6.1.21-v8+",
+     "-s": "Linux"
+    },
+    "name": "linux_aarch64",
+    "output": "Linux pi4 6.1.21-v8+ #1642 SMP PREEMPT Mon Apr  3 17:24:16 BST 2023 GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "arm",
+     "hostname": "pi2",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "armv7l",
+     "-n": "pi2",
+     "-r": "5.10.103-v7+",
+     "-s": "Linux"
+    },
+    "name": "linux_armv7l",
+    "output": "Linux pi2 5.10.103-v7+ #1529 SMP Tue Mar 8 12:21:37 GMT 2022 GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86",
+     "hostname": "old32",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "i686",
+     "-n": "old32",
+     "-r": "4.19.0-18-686",
+     "-s": "Linux"
+    },
+    "name": "linux_i686",
+    "output": "Linux old32 4.19.0-18-686 #1 SMP Debian 4.19.208-1 (2021-09-29) GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "s390x",
+     "hostname": "lpar7",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "s390x",
+     "-n": "lpar7",
+     "-r": "5.14.0-362.8.1.el9_3.s390x",
+     "-s": "Linux"
+    },
+    "name": "linux_s390x",
+    "output": "Linux lpar7 5.14.0-362.8.1.el9_3.s390x #1 SMP Wed Nov 8 14:03:10 EST 2023 s390x s390x GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "ppc64le",
+     "hostname": "p10",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "ppc64le",
+     "-n": "p10",
+     "-r": "5.14.0-362.el9.ppc64le",
+     "-s": "Linux"
+    },
+    "name": "linux_ppc64le",
+    "output": "Linux p10 5.14.0-362.el9.ppc64le #1 SMP Mon Oct 30 11:25:10 EDT 2023 ppc64le ppc64le GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "riscv64",
+     "hostname": "vf2",
+     "os": "linux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "riscv64",
+     "-n": "vf2",
+     "-r": "5.15.0-1038-starfive",
+     "-s": "Linux"
+    },
+    "name": "linux_riscv64",
+    "output": "Linux vf2 5.15.0-1038-starfive #42-Ubuntu SMP Fri Oct 13 19:32:11 UTC 2023 riscv64 riscv64 GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "DESKTOP-AB12",
+     "os": "linux",
+     "wsl": true
+    },
+    "flags": {
+     "-m": "x86_64",
+     "-n": "DESKTOP-AB12",
+     "-r": "5.15.133.1-microsoft-standard-WSL2",
+     "-s": "Linux"
+    },
+    "name": "linux_wsl2",
+    "output": "Linux DESKTOP-AB12 5.15.133.1-microsoft-standard-WSL2 #1 SMP Thu Oct 5 21:02:42 UTC 2023 x86_64 x86_64 GNU/Linux\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "arm64",
+     "hostname": "mbp.local",
+     "os": "darwin",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "arm64",
+     "-n": "mbp.local",
+     "-r": "23.4.0",
+     "-s": "Darwin"
+    },
+    "name": "darwin_arm64",
+    "output": "Darwin mbp.local 23.4.0 Darwin Kernel Version 23.4.0: Wed Feb 21 21:44:06 PST 2024; root:xnu-10063.101.15~2/RELEASE_ARM64_T6000 arm64\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "imac.local",
+     "os": "darwin",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "x86_64",
+     "-n": "imac.local",
+     "-r": "21.6.0",
+     "-s": "Darwin"
+    },
+    "name": "darwin_x86_64",
+    "output": "Darwin imac.local 21.6.0 Darwin Kernel Version 21.6.0: Mon Dec 19 20:44:01 PST 2022; root:xnu-8020.240.18~2/RELEASE_X86_64 x86_64\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "bsd1.example.org",
+     "os": "freebsd",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "amd64",
+     "-n": "bsd1.example.org",
+     "-r": "14.0-RELEASE",
+     "-s": "FreeBSD"
+    },
+    "name": "freebsd_amd64",
+    "output": "FreeBSD bsd1.example.org 14.0-RELEASE FreeBSD 14.0-RELEASE releng/14.0-n265380-f9716eee8ab4 GENERIC amd64\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "arm64",
+     "hostname": "obsd.example.org",
+     "os": "openbsd",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "arm64",
+     "-n": "obsd.example.org",
+     "-r": "7.4",
+     "-s": "OpenBSD"
+    },
+    "name": "openbsd_arm64",
+    "output": "OpenBSD obsd.example.org 7.4 GENERIC.MP#1397 arm64\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "nbsd",
+     "os": "netbsd",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "amd64",
+     "-n": "nbsd",
+     "-r": "10.0",
+     "-s": "NetBSD"
+    },
+    "name": "netbsd_amd64",
+    "output": "NetBSD nbsd 10.0 NetBSD 10.0 (GENERIC) #0: Thu Mar 28 08:33:34 UTC 2024 amd64\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "ppc64",
+     "hostname": "aixlpar1",
+     "os": "aix",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "00F84C464C00",
+     "-n": "aixlpar1",
+     "-r": "1",
+     "-s": "AIX"
+    },
+    "name": "aix_power",
+    "output": "AIX aixlpar1 1 7\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "sparc64",
+     "hostname": "sol11",
+     "os": "sunos",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "sun4v",
+     "-n": "sol11",
+     "-r": "5.11",
+     "-s": "SunOS"
+    },
+    "name": "sunos_sparc",
+    "output": "SunOS sol11 5.11 11.4.42.111.0 sun4v\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86",
+     "hostname": "sol10x",
+     "os": "sunos",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "i86pc",
+     "-n": "sol10x",
+     "-r": "5.10",
+     "-s": "SunOS"
+    },
+    "name": "sunos_x86",
+    "output": "SunOS sol10x 5.10 Generic_147441-01 i386 i86pc\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "ia64",
+     "hostname": "hpuxia",
+     "os": "hpux",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "ia64",
+     "-n": "hpuxia",
+     "-r": "B.11.31",
+     "-s": "HP-UX"
+    },
+    "name": "hpux_ia64",
+    "output": "HP-UX hpuxia B.11.31 U 4120239716 unlimited-user license\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "WIN11",
+     "os": "cygwin",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "x86_64",
+     "-n": "WIN11",
+     "-r": "3.5.3-1.x86_64",
+     "-s": "MSYS_NT-10.0-26100"
+    },
+    "name": "msys_x86_64",
+    "output": "MSYS_NT-10.0-26100 WIN11 3.5.3-1.x86_64 2024-04-01 12:00 UTC Msys\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "x86_64",
+     "hostname": "WIN10",
+     "os": "cygwin",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "x86_64",
+     "-n": "WIN10",
+     "-r": "3.4.10-1.x86_64",
+     "-s": "CYGWIN_NT-10.0-19045"
+    },
+    "name": "cygwin_x86_64",
+    "output": "CYGWIN_NT-10.0-19045 WIN10 3.4.10-1.x86_64 2023-10-19 13:27 UTC Cygwin\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "other",
+     "hostname": "p9",
+     "os": "other",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "386",
+     "-n": "p9",
+     "-r": "4",
+     "-s": "Plan9"
+    },
+    "name": "unknown_os",
+    "output": "Plan9 p9 4 1\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "s390x",
+     "hostname": "ZOS1",
+     "os": "zos",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "8561",
+     "-n": "ZOS1",
+     "-r": "12.00",
+     "-s": "OS/390"
+    },
+    "name": "zos_s390x",
+    "output": "OS/390 ZOS1 12.00 03 8561\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "ppc64",
+     "hostname": "ibmi1",
+     "os": "os400",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "00C0A5BA4C00",
+     "-n": "ibmi1",
+     "-r": "5",
+     "-s": "OS400"
+    },
+    "name": "os400_pase_power",
+    "output": "OS400 ibmi1 5 7 00C0A5BA4C00\n"
+   },
+   {
+    "command": "uname -a",
+    "facts": {
+     "arch": "ppc64",
+     "hostname": "ibmi2",
+     "os": "os400",
+     "wsl": false
+    },
+    "flags": {
+     "-m": "0000000000",
+     "-n": "ibmi2",
+     "-r": "4",
+     "-s": "OS400"
+    },
+    "name": "os400_older_release",
+    "output": "OS400 ibmi2 4 7 0000000000\n"
+   }
+  ],
+  "versions": [
+   {
+    "command": "java -version",
+    "facts": {
+     "line": "openjdk version \"17.0.9\" 2023-10-17",
+     "status": "-",
+     "version": "17.0.9"
+    },
+    "name": "java_openjdk_17_with_banner",
+    "output": "Picked up JAVA_TOOL_OPTIONS: -Dhttps.protocols=TLSv1.2\nopenjdk version \"17.0.9\" 2023-10-17\nOpenJDK Runtime Environment Temurin-17.0.9+9 (build 17.0.9+9)\nOpenJDK 64-Bit Server VM Temurin-17.0.9+9 (build 17.0.9+9, mixed mode, sharing)\n"
+   },
+   {
+    "command": "java -version",
+    "facts": {
+     "line": "java version \"1.8.0_391\"",
+     "status": "-",
+     "version": "1.8.0"
+    },
+    "name": "java_oracle_8",
+    "output": "java version \"1.8.0_391\"\nJava(TM) SE Runtime Environment (build 1.8.0_391-b13)\nJava HotSpot(TM) 64-Bit Server VM (build 25.391-b13, mixed mode)\n"
+   },
+   {
+    "command": "java -version",
+    "facts": {
+     "line": "openjdk version \"21.0.1\" 2023-10-17",
+     "status": "-",
+     "version": "21.0.1"
+    },
+    "name": "java_jdk_options_banners",
+    "output": "NOTE: Picked up JDK_JAVA_OPTIONS: -Dx=1.5\nPicked up _JAVA_OPTIONS: -Xmx1g -Dv=2.0\nopenjdk version \"21.0.1\" 2023-10-17\n"
+   },
+   {
+    "command": "java -version",
+    "facts": {
+     "line": "java version \"1.8.0_381\"",
+     "status": "-",
+     "version": "1.8.0"
+    },
+    "name": "java_ibm_aix",
+    "output": "java version \"1.8.0_381\"\nJava(TM) SE Runtime Environment (build 8.0.8.15 - pap6480sr8fp15-20230915_01(SR8 FP15))\nIBM J9 VM (build 2.9, JRE 1.8.0 AIX ppc64-64 Compressed References 20230912_458524 (JIT enabled, AOT enabled)\n"
+   },
+   {
+    "command": "node --version",
+    "facts": {
+     "line": "v20.11.0",
+     "status": "-",
+     "version": "20.11.0"
+    },
+    "name": "node",
+    "output": "v20.11.0\n"
+   },
+   {
+    "command": "python3 --version",
+    "facts": {
+     "line": "Python 3.11.4",
+     "status": "-",
+     "version": "3.11.4"
+    },
+    "name": "python3",
+    "output": "Python 3.11.4\n"
+   },
+   {
+    "command": "python2 --version",
+    "facts": {
+     "line": "Python 2.7.18",
+     "status": "-",
+     "version": "2.7.18"
+    },
+    "name": "python2_stderr_style",
+    "output": "Python 2.7.18\n"
+   },
+   {
+    "command": "git --version",
+    "facts": {
+     "line": "git version 2.43.0",
+     "status": "-",
+     "version": "2.43.0"
+    },
+    "name": "git",
+    "output": "git version 2.43.0\n"
+   },
+   {
+    "command": "git --version",
+    "facts": {
+     "line": "git version 2.43.0.windows.1",
+     "status": "-",
+     "version": "2.43.0"
+    },
+    "name": "git_windows",
+    "output": "git version 2.43.0.windows.1\n"
+   },
+   {
+    "command": "gcc --version",
+    "facts": {
+     "line": "gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0",
+     "status": "-",
+     "version": "11.4.0"
+    },
+    "name": "gcc",
+    "output": "gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0\nCopyright (C) 2021 Free Software Foundation, Inc.\n"
+   },
+   {
+    "command": "go version",
+    "facts": {
+     "line": "go version go1.21.5 linux/amd64",
+     "status": "-",
+     "version": "1.21.5"
+    },
+    "name": "go",
+    "output": "go version go1.21.5 linux/amd64\n"
+   },
+   {
+    "command": "cargo --version",
+    "facts": {
+     "line": "cargo 1.75.0 (1d8b05cdd 2023-11-20)",
+     "status": "-",
+     "version": "1.75.0"
+    },
+    "name": "cargo",
+    "output": "cargo 1.75.0 (1d8b05cdd 2023-11-20)\n"
+   },
+   {
+    "command": "mvn -version",
+    "facts": {
+     "line": "Apache Maven 3.9.6 (bc0240f3c744dd6a7b7e66e4bd4b9d3c7a8b4a7e)",
+     "status": "-",
+     "version": "3.9.6"
+    },
+    "name": "mvn",
+    "output": "Apache Maven 3.9.6 (bc0240f3c744dd6a7b7e66e4bd4b9d3c7a8b4a7e)\nMaven home: /opt/maven\n"
+   },
+   {
+    "command": "tool --version",
+    "facts": {
+     "line": "tool 4.2.1",
+     "status": "-",
+     "version": "4.2.1"
+    },
+    "name": "crlf_output",
+    "output": "tool 4.2.1\r\n"
+   },
+   {
+    "command": "tool --version",
+    "facts": {
+     "line": "usage: tool [options]",
+     "status": "-",
+     "version": "-"
+    },
+    "name": "no_version_number",
+    "output": "usage: tool [options]\n"
+   },
+   {
+    "command": "node --version",
+    "facts": {
+     "line": "/usr/bin/node: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by /usr/bin/node)",
+     "status": "loader",
+     "version": "-"
+    },
+    "name": "loader_glibcxx",
+    "output": "/usr/bin/node: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by /usr/bin/node)\n"
+   },
+   {
+    "command": "python3 --version",
+    "facts": {
+     "line": "python3: error while loading shared libraries: libpython3.11.so.1.0: cannot open shared object file",
+     "status": "loader",
+     "version": "-"
+    },
+    "name": "loader_missing_library",
+    "output": "python3: error while loading shared libraries: libpython3.11.so.1.0: cannot open shared object file\n"
+   },
+   {
+    "command": "x --version",
+    "facts": {
+     "line": "Error loading shared library libssl.so.3: No such file or directory (needed by /usr/bin/x)",
+     "status": "loader",
+     "version": "-"
+    },
+    "name": "loader_musl",
+    "output": "Error loading shared library libssl.so.3: No such file or directory (needed by /usr/bin/x)\n"
+   },
+   {
+    "command": "x --version",
+    "facts": {
+     "line": "bash: ./x: cannot execute binary file: Exec format error",
+     "status": "loader",
+     "version": "-"
+    },
+    "name": "loader_exec_format",
+    "output": "bash: ./x: cannot execute binary file: Exec format error\n"
+   }
+  ]
+ }
+}

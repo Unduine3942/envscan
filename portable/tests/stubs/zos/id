@@ -1,0 +1,3 @@
+#!/bin/sh
+# test stub: z/OS UNIX id
+printf '%s\n' "uid=1234(USER1) gid=500(SYS1) groups=500(SYS1),501(DEVGRP)"

@@ -1,0 +1,10 @@
+#!/bin/sh
+# test stub: df -k -P; every call is logged so a test can check which mount points were queried
+printf 'df %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+printf '%s\n' "Filesystem 1024-blocks Used Available Capacity Mounted on"
+for m in "$@"; do
+  case $m in
+    /) printf '%s\n' "OMVS.ROOT 4096000 1024000 3072000 25% /" ;;
+    /u) printf '%s\n' "OMVS.U.ZFS 1024000 512000 512000 50% /u" ;;
+  esac
+done

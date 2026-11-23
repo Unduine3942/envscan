@@ -1,0 +1,15 @@
+#!/bin/sh
+# test stub: z/OS UNIX uname (IBM docs: plain -s/-r/-v give the OS/390-compatible identity; -I selects
+# the z/OS product name, release and version; -p is not documented). ES_STUB_NO_I=1 makes -I fail.
+printf 'uname %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+case $1 in
+  -s) printf '%s\n' "OS/390" ;;
+  -n) printf '%s\n' "ZOS1" ;;
+  -r) printf '%s\n' "12.00" ;;
+  -v) printf '%s\n' "03" ;;
+  -m) printf '%s\n' "8561" ;;
+  -Ia) if [ -n "${ES_STUB_NO_I:-}" ]; then printf '%s\n' "uname: FSUM7332 invalid option I" >&2; exit 1; fi
+       printf '%s\n' "z/OS ZOS1 05.00 02 8561" ;;
+  -a) printf '%s\n' "OS/390 ZOS1 12.00 03 8561" ;;
+  *) printf '%s\n' "uname: FSUM7332 invalid option $1" >&2; exit 1 ;;
+esac

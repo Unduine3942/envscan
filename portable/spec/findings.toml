@@ -1,0 +1,289 @@
+# Findings: conclusions drawn from probe data, with a fixed title and recommendation.
+# Implementations decide WHEN a finding applies and write a dynamic `detail`;
+# the severity, title and recommendation come from here so every implementation
+# says the same thing.
+#   severity  blocker | warning | info
+#   title, recommendation: ASCII, one line, no tabs or pipes
+
+[thresholds]
+nofile_soft_min = 4096
+nproc_soft_min = 4096
+inotify_watches_min = 65536
+inotify_instances_min = 256
+max_map_count_min = 262144
+somaxconn_min = 1024
+disk_free_min_mb = 2048
+temp_free_min_mb = 1024
+memory_min_mb = 2048
+cgroup_cpu_fraction_warn = 0.75
+common_ports = [80, 443, 3000, 3306, 5000, 5432, 5672, 6379, 8000, 8080, 8443, 8888, 9000, 9090, 9200, 27017]
+
+[[finding]]
+id = "exec.ps_constrained"
+severity = "blocker"
+title = "PowerShell runs in ConstrainedLanguage mode"
+recommendation = "PowerShell code may only use core cmdlets and core .NET types; compiling helper types, COM and most .NET method calls are blocked. Ship compiled tools or CLM-safe scripts."
+
+[[finding]]
+id = "exec.app_control"
+severity = "blocker"
+title = "Application control policy is enforced"
+recommendation = "Unsigned or unapproved executables, scripts or DLLs may be blocked. Plan for code signing or an approved install path, and run fs.exec_test (--deep) to confirm."
+
+[[finding]]
+id = "exec.policy_restricted"
+severity = "warning"
+title = "PowerShell execution policy blocks unsigned scripts"
+recommendation = "Signed scripts, or inline commands, are required. Do not rely on .ps1 files in deployment or build steps unless they are signed."
+
+[[finding]]
+id = "exec.noexec_temp"
+severity = "warning"
+title = "Temporary or shared-memory directory is mounted noexec"
+recommendation = "Tools that unpack native code to temp (JNA, node addons, PyInstaller, Electron) fail. Point TMPDIR or -Djava.io.tmpdir at an executable, writable directory."
+
+[[finding]]
+id = "exec.mac_enforcing"
+severity = "info"
+title = "Mandatory access control is enforcing"
+recommendation = "SELinux, AppArmor or fapolicyd may deny file, network or exec access that plain permissions allow. Check audit logs when an app fails with permission errors."
+
+[[finding]]
+id = "exec.cmd_disabled"
+severity = "warning"
+title = "Command Prompt or batch files are disabled by policy"
+recommendation = "Avoid .cmd/.bat wrappers (npm, mvn and gradle ship them); call executables directly."
+
+[[finding]]
+id = "tls.enterprise_ca"
+severity = "warning"
+title = "Enterprise or TLS-inspection root certificates are installed"
+recommendation = "Runtimes that do not use the OS store need the CA explicitly: NODE_EXTRA_CA_CERTS, REQUESTS_CA_BUNDLE/SSL_CERT_FILE, the Java cacerts truststore, git http.sslCAInfo or http.sslBackend=schannel."
+
+[[finding]]
+id = "tls.offline_pki"
+severity = "warning"
+title = "Root certificate auto-update is disabled or the network is isolated"
+recommendation = "Certificates chaining to roots not already installed fail validation, and online revocation checks (CRL/OCSP) can stall for 15+ seconds. Use offline CRLs or runtime revocation settings that your security policy allows."
+
+[[finding]]
+id = "tls.verification_disabled"
+severity = "warning"
+title = "TLS verification is disabled in the environment or a tool config"
+recommendation = "Something already disables certificate verification (e.g. NODE_TLS_REJECT_UNAUTHORIZED=0, strict-ssl=false, sslVerify=false). Do not copy this into production; install the CA instead."
+
+[[finding]]
+id = "pkg.no_source"
+severity = "blocker"
+title = "No package mirror, proxy or offline cache was found"
+recommendation = "Dependencies cannot be downloaded here. Vendor them, ship a self-contained build, or ask for an internal mirror."
+
+[[finding]]
+id = "pkg.mirror"
+severity = "info"
+title = "Internal package mirrors or registries are configured"
+recommendation = "Use these endpoints for dependency installs; see pkg.sources for the exact configuration per tool."
+
+[[finding]]
+id = "pkg.offline_cache"
+severity = "info"
+title = "Offline dependency caches exist"
+recommendation = "Builds may work offline from these caches (e.g. mvn -o, npm --offline, GOFLAGS=-mod=mod with GOPROXY=off, cargo --offline)."
+
+[[finding]]
+id = "net.proxy_configured"
+severity = "info"
+title = "A proxy is configured"
+recommendation = "Make sure the application and its package managers use the same proxy and exclusion list (see net.proxy)."
+
+[[finding]]
+id = "net.proxy_user_only"
+severity = "warning"
+title = "Proxy is configured for the user (WinINET/PAC) but not for services (WinHTTP)"
+recommendation = "Services and scheduled tasks will not use the user's proxy. Configure WinHTTP or the application's own proxy settings."
+
+[[finding]]
+id = "net.no_route"
+severity = "info"
+title = "No default gateway"
+recommendation = "This host cannot route off its local network; only directly attached networks are reachable."
+
+[[finding]]
+id = "net.excluded_ports"
+severity = "warning"
+title = "Common application ports fall inside an excluded port range"
+recommendation = "Binding to these ports fails with access denied (Hyper-V, WSL or WinNAT reservations). Choose ports outside the excluded ranges."
+
+[[finding]]
+id = "net.ports_in_use"
+severity = "info"
+title = "Common application ports are already in use"
+recommendation = "Pick free ports or stop the conflicting service (see net.listening)."
+
+[[finding]]
+id = "native.libc"
+severity = "info"
+title = "C library baseline"
+recommendation = "Prebuilt Linux binaries must target this C library (glibc version or musl); manylinux/glibc builds do not run on musl."
+
+[[finding]]
+id = "arch.mismatch"
+severity = "warning"
+title = "Runtime architecture differs from the OS architecture"
+recommendation = "Native modules and JNI/P/Invoke libraries must match the runtime's architecture, not the OS's."
+
+[[finding]]
+id = "limits.nofile_low"
+severity = "warning"
+title = "Open-file limit is low"
+recommendation = "Servers, bundlers and file watchers can hit EMFILE. Raise the limit for the service account or limit concurrency."
+
+[[finding]]
+id = "limits.inotify_low"
+severity = "warning"
+title = "inotify limits are low"
+recommendation = "File watchers (IDEs, webpack, nodemon) may fail with ENOSPC; use polling or ask for higher fs.inotify limits."
+
+[[finding]]
+id = "limits.max_map_count_low"
+severity = "info"
+title = "vm.max_map_count is below what search engines and some JVM apps need"
+recommendation = "Elasticsearch/OpenSearch require 262144; other apps may run out of memory mappings."
+
+[[finding]]
+id = "limits.cgroup"
+severity = "warning"
+title = "Control group limits are smaller than the host"
+recommendation = "Size thread pools, heaps and worker counts from the cgroup limits, not the host CPU and memory counts."
+
+[[finding]]
+id = "limits.memory_low"
+severity = "warning"
+title = "Little memory available"
+recommendation = "Builds and JIT runtimes may be killed or swap heavily; reduce parallelism or heap sizes."
+
+[[finding]]
+id = "fs.low_disk"
+severity = "warning"
+title = "Low free disk space"
+recommendation = "Installs, caches and builds may fail; choose another volume or clean up."
+
+[[finding]]
+id = "fs.long_paths_disabled"
+severity = "warning"
+title = "Windows long path support is disabled"
+recommendation = "Paths over 260 characters fail in many tools (deep node_modules, Maven repositories). Keep install paths short or enable LongPathsEnabled."
+
+[[finding]]
+id = "fs.symlinks_unavailable"
+severity = "warning"
+title = "This user cannot create symbolic links"
+recommendation = "git checkouts with symlinks and tools like pnpm or some npm workspaces degrade; set git core.symlinks=false and prefer copy/junction modes."
+
+[[finding]]
+id = "fs.case_insensitive"
+severity = "info"
+title = "The file system is case-insensitive"
+recommendation = "Files differing only in case collide; keep imports and file names case-consistent."
+
+[[finding]]
+id = "fs.no_writable_install_dir"
+severity = "blocker"
+title = "No writable location was found for installing software"
+recommendation = "This user cannot write any candidate install directory; request a writable app directory."
+
+[[finding]]
+id = "crypto.fips"
+severity = "warning"
+title = "FIPS mode is enabled"
+recommendation = "Non-approved algorithms (MD5, some cipher suites) fail at runtime; test hashing and TLS code paths here."
+
+[[finding]]
+id = "crypto.weak_dotnet_tls"
+severity = "warning"
+title = ".NET Framework may not default to TLS 1.2"
+recommendation = "Set SchUseStrongCrypto/SystemDefaultTlsVersions or target .NET 4.7+; older apps may fail TLS handshakes."
+
+[[finding]]
+id = "user.is_admin"
+severity = "info"
+title = "The scan ran with administrative rights"
+recommendation = "Results may show access that the real application account will not have."
+
+[[finding]]
+id = "user.no_passwd_entry"
+severity = "warning"
+title = "The running UID has no passwd entry"
+recommendation = "Tools that look up the user (ssh, git, some JVM code) fail. Typical of OpenShift-style random UIDs; set HOME and use nss_wrapper if needed."
+
+[[finding]]
+id = "user.profile_nonpersistent"
+severity = "warning"
+title = "The user profile is temporary, mandatory or redirected"
+recommendation = "Caches and settings in the profile may not persist or may live on a network share; keep app data in a stable local directory."
+
+[[finding]]
+id = "user.home_network"
+severity = "warning"
+title = "The home directory or profile is on a network share or synced folder"
+recommendation = "Expect slow file I/O and file-locking surprises; put caches, builds and virtual environments on a local disk."
+
+[[finding]]
+id = "locale.non_utf8"
+severity = "warning"
+title = "The default encoding is not UTF-8"
+recommendation = "Set explicit encodings when reading and writing files and console output (e.g. LANG=C.UTF-8, chcp 65001, PYTHONUTF8=1, -Dfile.encoding=UTF-8)."
+
+[[finding]]
+id = "locale.decimal_comma"
+severity = "info"
+title = "The locale uses a decimal comma"
+recommendation = "Parse and format numbers with an invariant culture or locale."
+
+[[finding]]
+id = "os.pending_reboot"
+severity = "warning"
+title = "A reboot is pending"
+recommendation = "Installers may refuse to run and some updates are not active until the host restarts."
+
+[[finding]]
+id = "os.legacy"
+severity = "warning"
+title = "Legacy or end-of-support operating system or shell"
+recommendation = "Modern runtimes may not install; check minimum OS versions (and UCRT, SHA-2 and TLS 1.2 updates on old Windows)."
+
+[[finding]]
+id = "container.detected"
+severity = "info"
+title = "Running inside a container"
+recommendation = "Expect a minimal userland, possibly a read-only root and cgroup limits; persistent data needs mounted volumes."
+
+[[finding]]
+id = "container.readonly_root"
+severity = "warning"
+title = "The root file system is read-only"
+recommendation = "Write only to mounted volumes, HOME or TMPDIR."
+
+[[finding]]
+id = "session.headless"
+severity = "info"
+title = "No graphical display is available"
+recommendation = "GUI apps and headed browsers need Xvfb or a headless mode."
+
+[[finding]]
+id = "runtime.python_absent"
+severity = "info"
+title = "No Python interpreter is installed"
+recommendation = "Tools that need Python (node-gyp, Ansible, many build scripts) will not work; bundle a runtime or avoid them."
+
+[[finding]]
+id = "runtime.shims_not_run"
+severity = "info"
+title = "Version-manager shims were found and not executed"
+recommendation = "Versions were read from the managers' install directories; run the shim yourself if you need the resolved version."
+
+[[finding]]
+id = "scan.partial"
+severity = "info"
+title = "Some probes could not check everything"
+recommendation = "See the Not checked section; missing data means unknown, not absent."

@@ -1,0 +1,13 @@
+#!/bin/sh
+# test stub: macOS "dscacheutil -q host -a name NAME"; like net-abs/getent it answers only the
+# absolute form of a name ("proxy.corp.") and logs every call to ES_STUB_LOG
+printf 'dscacheutil %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+n=$5
+case $n in
+  *.) n=${n%.} ;;
+  *) printf 'relative name refused: %s\n' "$n" >>"${ES_STUB_LOG:-/dev/null}"; exit 0 ;;
+esac
+case $n in
+  proxy.corp) printf 'name: %s\nip_address: 10.0.0.5\n\n' "$5" ;;
+esac
+exit 0

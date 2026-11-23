@@ -1,0 +1,86 @@
+# Environment applied to every external command the scanner runs (tool version
+# checks, git config, netsh, ...). Each value stops a tool from prompting, paging,
+# colouring output, phoning home, self-updating or downloading toolchains.
+# The scan records the ORIGINAL environment (env.vars) before applying these.
+# Values must not contain quotes, $, ` or %.
+
+[child_env]
+NO_COLOR = "1"
+TERM = "dumb"
+PAGER = "cat"
+GIT_PAGER = "cat"
+SYSTEMD_PAGER = ""
+MANPAGER = "cat"
+GIT_TERMINAL_PROMPT = "0"
+GCM_INTERACTIVE = "never"
+DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+DOTNET_NOLOGO = "1"
+DOTNET_SKIP_FIRST_TIME_EXPERIENCE = "1"
+DOTNET_GENERATE_ASPNET_CERTIFICATE = "false"
+NO_UPDATE_NOTIFIER = "1"
+npm_config_update_notifier = "false"
+COREPACK_ENABLE_NETWORK = "0"
+COREPACK_ENABLE_DOWNLOAD_PROMPT = "0"
+DENO_NO_UPDATE_CHECK = "1"
+GOTOOLCHAIN = "local"
+CHECKPOINT_DISABLE = "1"
+VAGRANT_CHECKPOINT_DISABLE = "1"
+PULUMI_SKIP_UPDATE_CHECK = "true"
+CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK = "true"
+CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
+PIP_DISABLE_PIP_VERSION_CHECK = "1"
+COMPOSER_DISABLE_NETWORK = "1"
+HOMEBREW_NO_AUTO_UPDATE = "1"
+HOMEBREW_NO_ANALYTICS = "1"
+HOMEBREW_NO_ENV_HINTS = "1"
+POWERSHELL_TELEMETRY_OPTOUT = "1"
+POWERSHELL_UPDATECHECK = "Off"
+WSL_UTF8 = "1"
+
+# The ONLY variables of the user's environment that reach those commands (an allowlist, applied
+# before [child_env] above). Everything else stays out: proxy settings (they may carry
+# user:password), tokens, GIT_CONFIG_PARAMETERS, DOCKER_HOST, loader and option injection
+# (LD_PRELOAD, NODE_OPTIONS, JAVA_TOOL_OPTIONS, BASH_ENV, ENV). The scan still REPORTS the full,
+# redacted environment (env.vars); this only limits what child programs see.
+# Matching is exact on Unix and ignores case on Windows. names may end in "(X86)" (Windows only;
+# envscan.sh skips such names). A name here must not be a secret name (redaction NAME RULES).
+[child_env_keep]
+names = [
+    # every system
+    "PATH", "HOME", "USER", "LOGNAME", "SHELL", "TMPDIR", "TMP", "TEMP", "TZ", "LANG", "LANGUAGE",
+    "NLSPATH", "TERMINFO", "DBUS_SESSION_BUS_ADDRESS",
+    # shared libraries (tools installed under /opt often need them to start at all)
+    "LD_LIBRARY_PATH", "LIBPATH", "SHLIB_PATH", "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH",
+    # AIX ODM commands, z/OS load libraries
+    "ODMDIR", "STEPLIB",
+    # tool homes that change what a version or config command reports
+    "JAVA_HOME", "JDK_HOME", "JRE_HOME", "DOTNET_ROOT", "DOTNET_ROOT(X86)", "GOROOT", "GOPATH",
+    "GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM", "GIT_CONFIG_NOSYSTEM", "GIT_EXEC_PATH",
+    "OPENSSL_CONF", "SSL_CERT_FILE", "SSL_CERT_DIR", "FONTCONFIG_FILE", "FONTCONFIG_PATH",
+    # Windows
+    "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "SYSTEMDRIVE", "USERPROFILE", "HOMEDRIVE", "HOMEPATH",
+    "APPDATA", "LOCALAPPDATA", "PROGRAMDATA", "ALLUSERSPROFILE", "PUBLIC", "PROGRAMFILES",
+    "PROGRAMFILES(X86)", "PROGRAMW6432", "COMMONPROGRAMFILES", "COMMONPROGRAMFILES(X86)",
+    "COMMONPROGRAMW6432", "USERNAME", "USERDOMAIN", "COMPUTERNAME", "OS", "PROCESSOR_ARCHITECTURE",
+    "PROCESSOR_ARCHITEW6432", "PROCESSOR_IDENTIFIER", "PROCESSOR_LEVEL", "PROCESSOR_REVISION",
+    "NUMBER_OF_PROCESSORS", "PSMODULEPATH", "DRIVERDATA",
+]
+# Name prefixes: locale categories, XDG base directories, z/OS code-page conversion.
+prefixes = ["LC_", "XDG_", "_BPXK_", "_CEE_", "_TAG_"]
+# Kept variables that hold paths are vetted before a child sees them (the same rules as every
+# other path: network/autofs mounts, UNC paths and mapped network drives, credential stores; the
+# check never touches the path itself):
+# - home_paths: a refused value is replaced by an empty folder inside the scanner's private temp
+#   folder (TMPDIR/TMP/TEMP: by that temp folder itself), so tools still find a writable home.
+# - path_lists: refused entries are dropped (":" on Unix, ";" on Windows); a list left empty is
+#   removed.
+# - any other kept variable whose value is an absolute path ("/...", "X:\...", "X:/...", "\...")
+#   is removed when that path is refused.
+home_paths = [
+    "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "XDG_CONFIG_HOME", "XDG_CACHE_HOME",
+    "XDG_DATA_HOME", "XDG_STATE_HOME", "TMPDIR", "TMP", "TEMP",
+]
+path_lists = [
+    "PATH", "LD_LIBRARY_PATH", "LIBPATH", "SHLIB_PATH", "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH",
+    "PSMODULEPATH", "XDG_DATA_DIRS", "XDG_CONFIG_DIRS", "FONTCONFIG_PATH",
+]

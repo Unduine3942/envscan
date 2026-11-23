@@ -1,0 +1,5 @@
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+http_proxy="http://proxy.corp.example:3128"
+https_proxy="http://proxy.corp.example:3128"
+no_proxy=".corp.example,localhost,127.0.0.1"
+PIP_INDEX_URL="https://nexus.corp.example/repository/pypi-proxy/simple"

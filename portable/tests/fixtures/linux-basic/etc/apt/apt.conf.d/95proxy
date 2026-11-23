@@ -1,0 +1,3 @@
+// corporate APT cache
+Acquire::http::Proxy "http://apt-cache.corp.example:3142";
+Acquire::https::Proxy::nexus.corp.example "DIRECT";

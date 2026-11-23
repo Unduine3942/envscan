@@ -1,0 +1,159 @@
+# Configuration files and caches read by pkg.sources, pkg.caches, net.proxy and tls.trust.
+#
+# configs: files whose (redacted) content tells an application where packages come
+# from and how traffic leaves the host.
+#   id     unique id
+#   tool   tool name for display
+#   os     all (default) | windows | unix | linux | darwin
+#   scope  user | machine
+#   paths  path patterns: ~ = home, {env:NAME} = env var (skipped when unset), * = glob,
+#          forward slashes only
+#   mode   content (default): whole file, redacted, capped at max_bytes
+#          lines: only lines containing one of `match` (case-insensitive), redacted
+#          list: directory entry names only (paths must point at directories)
+#   match  substrings for mode = "lines"
+#   max_bytes  cap per file (default 16384); at most 20 files per entry
+#
+# Never listed here, never opened: ~/.docker/config.json (registry auths), auth.json,
+# .netrc, .git-credentials, ~/.ssh, ~/.aws, ~/.kube, shell or PSReadLine history.
+
+configs = [
+  # ---- JavaScript ----
+  { id = "npmrc.user", tool = "npm", scope = "user", paths = ["~/.npmrc", "{env:NPM_CONFIG_USERCONFIG}"] },
+  { id = "npmrc.global", tool = "npm", scope = "machine", paths = ["{env:APPDATA}/npm/etc/npmrc", "/etc/npmrc", "/usr/local/etc/npmrc", "/opt/homebrew/etc/npmrc", "{env:ProgramFiles}/nodejs/node_modules/npm/npmrc"] },
+  { id = "yarnrc", tool = "yarn", scope = "user", paths = ["~/.yarnrc", "~/.yarnrc.yml"] },
+  { id = "pnpmrc", tool = "pnpm", scope = "user", paths = ["~/.config/pnpm/rc", "{env:LOCALAPPDATA}/pnpm/config/rc", "~/Library/Preferences/pnpm/rc"] },
+  { id = "bunfig", tool = "bun", scope = "user", paths = ["~/.bunfig.toml"] },
+
+  # ---- Python ----
+  { id = "pip.user", tool = "pip", scope = "user", paths = ["~/.pip/pip.conf", "~/.config/pip/pip.conf", "~/Library/Application Support/pip/pip.conf", "{env:APPDATA}/pip/pip.ini", "~/pip/pip.ini", "{env:PIP_CONFIG_FILE}"] },
+  { id = "pip.global", tool = "pip", scope = "machine", paths = ["/etc/pip.conf", "/etc/xdg/pip/pip.conf", "{env:ProgramData}/pip/pip.ini"] },
+  { id = "uv", tool = "uv", scope = "user", paths = ["~/.config/uv/uv.toml", "{env:APPDATA}/uv/uv.toml", "/etc/uv/uv.toml"] },
+  { id = "condarc", tool = "conda", scope = "user", paths = ["~/.condarc", "~/.conda/.condarc", "/etc/conda/.condarc", "/opt/conda/.condarc", "{env:CONDARC}"] },
+  { id = "poetry", tool = "poetry", scope = "user", paths = ["~/.config/pypoetry/config.toml", "{env:APPDATA}/pypoetry/config.toml", "~/Library/Application Support/pypoetry/config.toml"] },
+
+  # ---- JVM ----
+  { id = "maven.settings", tool = "maven", scope = "user", paths = ["~/.m2/settings.xml"] },
+  { id = "maven.global", tool = "maven", scope = "machine", paths = ["{env:MAVEN_HOME}/conf/settings.xml", "{env:M2_HOME}/conf/settings.xml"] },
+  # "*.prop*" globs: the PowerShell build may not contain the plural of "property"
+  # (PowerShell logs script blocks containing it as suspicious).
+  { id = "gradle.props", tool = "gradle", scope = "user", paths = ["~/.gradle/gradle.prop*", "{env:GRADLE_USER_HOME}/gradle.prop*"] },
+  { id = "gradle.init", tool = "gradle", scope = "user", paths = ["~/.gradle/init.gradle", "~/.gradle/init.gradle.kts", "~/.gradle/init.d/*"] },
+  { id = "java.net", tool = "java", scope = "machine", mode = "lines", match = ["proxy", "nonProxyHosts"], paths = ["{env:JAVA_HOME}/conf/net.prop*", "{env:JAVA_HOME}/jre/lib/net.prop*", "{env:JAVA_HOME}/lib/net.prop*"] },
+
+  # ---- .NET ----
+  { id = "nuget.user", tool = "nuget", scope = "user", paths = ["{env:APPDATA}/NuGet/NuGet.Config", "~/.nuget/NuGet/NuGet.Config", "~/.config/NuGet/NuGet.Config"] },
+  { id = "nuget.machine", tool = "nuget", scope = "machine", paths = ["{env:ProgramFiles(x86)}/NuGet/Config/*.config", "{env:ProgramData}/NuGet/Config/*.config"] },
+
+  # ---- Rust, Go, Ruby, PHP ----
+  { id = "cargo", tool = "cargo", scope = "user", paths = ["~/.cargo/config.toml", "~/.cargo/config", "{env:CARGO_HOME}/config.toml"] },
+  { id = "go.env", tool = "go", scope = "user", paths = ["{env:APPDATA}/go/env", "~/.config/go/env", "~/Library/Application Support/go/env"] },
+  { id = "gemrc", tool = "gem", scope = "user", paths = ["~/.gemrc", "/etc/gemrc"] },
+  # ~/.bundle/config also holds credentials as BUNDLE_<HOST>: "user:token"; only known
+  # non-credential settings are kept (a host name cannot contain "://").
+  { id = "bundler", tool = "bundler", scope = "user", mode = "lines", match = [
+    "BUNDLE_MIRROR__HTTPS://", "BUNDLE_MIRROR__HTTP://", "BUNDLE_MIRROR__ALL:", "BUNDLE_MIRROR__ALL__FALLBACK_TIMEOUT:",
+    "BUNDLE_SSL_CA_CERT:", "BUNDLE_SSL_CLIENT_CERT:", "BUNDLE_SSL_VERIFY_MODE:", "BUNDLE_PATH:", "BUNDLE_FROZEN:",
+    "BUNDLE_DEPLOYMENT:", "BUNDLE_WITHOUT:", "BUNDLE_WITH:", "BUNDLE_JOBS:", "BUNDLE_RETRY:", "BUNDLE_TIMEOUT:",
+    "BUNDLE_BIN:", "BUNDLE_GEMFILE:", "BUNDLE_FORCE_RUBY_PLATFORM:", "BUNDLE_DISABLE_SHARED_GEMS:",
+    "BUNDLE_CACHE_ALL:", "BUNDLE_CACHE_PATH:", "BUNDLE_ALLOW_OFFLINE_INSTALL:",
+  ], paths = ["~/.bundle/config"] },
+  { id = "composer", tool = "composer", scope = "user", paths = ["~/.composer/config.json", "~/.config/composer/config.json", "{env:APPDATA}/Composer/config.json"] },
+
+  # ---- containers ----
+  { id = "docker.daemon", tool = "docker", scope = "machine", paths = ["/etc/docker/daemon.json", "~/.docker/daemon.json"] },
+  { id = "containers.registries", tool = "podman", scope = "machine", paths = ["/etc/containers/registries.conf", "~/.config/containers/registries.conf"] },
+
+  # ---- OS package repositories ----
+  { id = "apt.sources", tool = "apt", os = "linux", scope = "machine", mode = "lines", match = ["deb ", "deb-src ", "URIs:", "Suites:"], paths = ["/etc/apt/sources.list", "/etc/apt/sources.list.d/*"] },
+  { id = "apt.conf", tool = "apt", os = "linux", scope = "machine", mode = "lines", match = ["proxy", "Verify-Peer", "CaInfo"], paths = ["/etc/apt/apt.conf", "/etc/apt/apt.conf.d/*"] },
+  { id = "yum.repos", tool = "yum", os = "linux", scope = "machine", mode = "lines", match = ["[", "baseurl", "mirrorlist", "metalink", "enabled", "proxy", "sslverify"], paths = ["/etc/yum.repos.d/*.repo"] },
+  { id = "yum.conf", tool = "yum", os = "linux", scope = "machine", mode = "lines", match = ["proxy", "sslverify", "sslcacert"], paths = ["/etc/yum.conf", "/etc/dnf/dnf.conf"] },
+  { id = "zypper.repos", tool = "zypper", os = "linux", scope = "machine", mode = "lines", match = ["[", "baseurl", "enabled"], paths = ["/etc/zypp/repos.d/*.repo"] },
+  { id = "apk.repos", tool = "apk", os = "linux", scope = "machine", paths = ["/etc/apk/repositories"] },
+  { id = "pacman.mirrors", tool = "pacman", os = "linux", scope = "machine", mode = "lines", match = ["Server"], paths = ["/etc/pacman.d/mirrorlist"] },
+
+  # ---- system-wide environment and proxy files ----
+  { id = "etc.environment", tool = "system", os = "linux", scope = "machine", paths = ["/etc/environment"] },
+  { id = "etc.profile.d", tool = "system", os = "unix", scope = "machine", mode = "lines", match = ["proxy", "PROXY", "CA_BUNDLE", "CERT"], paths = ["/etc/profile.d/*.sh"] },
+]
+
+# Offline caches: presence, top-level entry count (capped) and modification time.
+caches = [
+  { id = "maven", tool = "maven", paths = ["~/.m2/repository"] },
+  { id = "gradle", tool = "gradle", paths = ["~/.gradle/caches/modules-2/files-2.1", "{env:GRADLE_USER_HOME}/caches/modules-2/files-2.1"] },
+  { id = "ivy", tool = "ivy/sbt", paths = ["~/.ivy2/cache", "~/.cache/coursier", "{env:LOCALAPPDATA}/Coursier/cache"] },
+  { id = "nuget", tool = "nuget", paths = ["~/.nuget/packages", "{env:NUGET_PACKAGES}"] },
+  { id = "npm", tool = "npm", paths = ["~/.npm/_cacache", "{env:LOCALAPPDATA}/npm-cache/_cacache", "{env:npm_config_cache}/_cacache"] },
+  { id = "yarn", tool = "yarn", paths = ["~/.cache/yarn", "{env:LOCALAPPDATA}/Yarn/Cache", "~/.yarn/berry/cache"] },
+  { id = "pnpm", tool = "pnpm", paths = ["~/.local/share/pnpm/store", "{env:LOCALAPPDATA}/pnpm/store", "~/Library/pnpm/store"] },
+  { id = "pip", tool = "pip", paths = ["~/.cache/pip", "{env:LOCALAPPDATA}/pip/Cache", "~/Library/Caches/pip"] },
+  { id = "uv", tool = "uv", paths = ["~/.cache/uv", "{env:LOCALAPPDATA}/uv/cache"] },
+  { id = "conda", tool = "conda", paths = ["~/.conda/pkgs", "~/miniconda3/pkgs", "~/anaconda3/pkgs", "/opt/conda/pkgs"] },
+  { id = "go", tool = "go", paths = ["~/go/pkg/mod", "{env:GOMODCACHE}", "{env:GOPATH}/pkg/mod"] },
+  { id = "cargo", tool = "cargo", paths = ["~/.cargo/registry/cache", "{env:CARGO_HOME}/registry/cache"] },
+  { id = "composer", tool = "composer", paths = ["~/.cache/composer", "{env:LOCALAPPDATA}/Composer"] },
+  { id = "gem", tool = "gem", paths = ["~/.gem", "~/.local/share/gem"] },
+  { id = "deno", tool = "deno", paths = ["~/.cache/deno", "{env:DENO_DIR}", "{env:LOCALAPPDATA}/deno"] },
+  { id = "bun", tool = "bun", paths = ["~/.bun/install/cache"] },
+  { id = "vcpkg", tool = "vcpkg", paths = ["{env:LOCALAPPDATA}/vcpkg/archives", "~/.cache/vcpkg/archives"] },
+]
+
+# Environment variables that configure package sources, mirrors, proxies and TLS.
+# Reported together by pkg.sources / net.proxy / tls.trust (values redacted).
+package_env = [
+  "GOPROXY", "GOPRIVATE", "GONOPROXY", "GONOSUMDB", "GONOSUMCHECK", "GOSUMDB", "GOFLAGS", "GOINSECURE", "GOTOOLCHAIN",
+  "PIP_INDEX_URL", "PIP_EXTRA_INDEX_URL", "PIP_TRUSTED_HOST", "PIP_FIND_LINKS", "PIP_NO_INDEX", "PIP_CERT", "PIP_CONFIG_FILE",
+  "UV_INDEX_URL", "UV_DEFAULT_INDEX", "UV_EXTRA_INDEX_URL", "UV_NATIVE_TLS",
+  "NPM_CONFIG_REGISTRY", "npm_config_registry", "NPM_CONFIG_CAFILE", "npm_config_cafile", "NPM_CONFIG_STRICT_SSL", "YARN_REGISTRY", "YARN_NPM_REGISTRY_SERVER",
+  "CARGO_REGISTRIES_CRATES_IO_PROTOCOL", "CARGO_HTTP_CAINFO", "CARGO_NET_OFFLINE", "RUSTUP_DIST_SERVER", "RUSTUP_UPDATE_ROOT",
+  "NUGET_PACKAGES", "NUGET_FALLBACK_PACKAGES", "MAVEN_OPTS", "MAVEN_ARGS", "GRADLE_OPTS", "JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "JDK_JAVA_OPTIONS",
+  "HOMEBREW_ARTIFACT_DOMAIN", "HOMEBREW_BOTTLE_DOMAIN", "HOMEBREW_API_DOMAIN", "HOMEBREW_NO_INSTALL_FROM_API",
+  "CONDA_CHANNELS", "CONDARC", "DENO_CERT", "DOCKER_HOST", "DOCKER_CONFIG", "CONTAINERS_REGISTRIES_CONF",
+]
+
+proxy_env = ["http_proxy", "HTTP_PROXY", "https_proxy", "HTTPS_PROXY", "ftp_proxy", "FTP_PROXY", "all_proxy", "ALL_PROXY", "no_proxy", "NO_PROXY"]
+
+tls_env = [
+  "SSL_CERT_FILE", "SSL_CERT_DIR", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE", "NODE_EXTRA_CA_CERTS", "NODE_TLS_REJECT_UNAUTHORIZED",
+  "NODE_OPTIONS", "GIT_SSL_CAINFO", "GIT_SSL_NO_VERIFY", "PYTHONHTTPSVERIFY", "OPENSSL_CONF", "OPENSSL_FIPS", "AWS_CA_BUNDLE", "DENO_CERT",
+]
+
+# Trust-store bundle files and custom-anchor directories (Unix).
+ca_bundles = [
+  "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+  "/etc/ssl/ca-bundle.pem", "/etc/ssl/cert.pem", "/usr/local/etc/openssl/cert.pem", "/opt/homebrew/etc/openssl@3/cert.pem",
+]
+ca_anchor_dirs = [
+  "/usr/local/share/ca-certificates", "/etc/pki/ca-trust/source/anchors", "/etc/ca-certificates/trust-source/anchors",
+  "/usr/share/pki/trust/anchors", "/etc/pki/trust/anchors",
+]
+
+# Host suffixes of well-known public registries, mirrors and code hosts. An endpoint under one of
+# these is a public default, not an internal mirror: findings treat it that way, and --net never
+# contacts it (from an isolated enclave that would be an attempt to reach the internet).
+public_hosts = [
+  "npmjs.org", "npmjs.com", "yarnpkg.com", "nodejs.org", "nodesource.com", "jsdelivr.net", "unpkg.com",
+  "pypi.org", "pythonhosted.org", "python.org", "pytorch.org", "anaconda.org", "anaconda.com", "conda.io",
+  "conda-forge.org", "maven.org", "apache.org", "gradle.org", "gradle-dn.com", "sonatype.org", "bintray.com",
+  "java.net", "nuget.org", "microsoft.com", "visualstudio.com", "azure.com", "azureedge.net", "chocolatey.org",
+  "crates.io", "rust-lang.org", "golang.org", "go.dev", "rubygems.org", "packagist.org", "cocoapods.org", "pub.dev",
+  "dart.dev", "hex.pm", "haskell.org", "julialang.org", "r-project.org", "ubuntu.com", "canonical.com",
+  "launchpad.net", "launchpadcontent.net", "debian.org", "fedoraproject.org", "centos.org", "redhat.com", "redhat.io",
+  "rockylinux.org", "almalinux.org", "oracle.com", "opensuse.org", "suse.com", "alpinelinux.org", "archlinux.org",
+  "kernel.org", "snapcraft.io", "flathub.org", "brew.sh", "homebrew.org", "github.com", "githubusercontent.com",
+  "gitlab.com", "bitbucket.org", "sourceforge.net", "docker.io", "docker.com", "quay.io", "ghcr.io", "gcr.io",
+  "pkg.dev", "k8s.io", "jfrog.io", "amazonaws.com", "cloudfront.net", "googleapis.com", "google.com", "nvidia.com",
+  "hashicorp.com", "terraform.io", "jitpack.io", "huggingface.co", "sonatype.com", "ecr.aws", "gopkg.in",
+  "npmmirror.com", "clojars.org", "spring.io", "jetbrains.com", "azurecr.io", "gnu.org", "cpan.org",
+]
+
+# Hosts --net never contacts, checked on the configured name and again on every resolved address:
+# cloud instance-metadata services and link-local addresses. An entry ending in "." or ":" is an
+# address prefix; any other entry must equal the whole host name or address (compared in lower case,
+# without IPv6 brackets).
+net_never = [
+  "169.254.", "::ffff:169.254.", "fe80:", "fd00:ec2::254", "fd20:ce::254", "2002:", "100.100.100.200",
+  "168.63.129.16", "192.0.0.192",
+  "metadata", "metadata.google.internal", "metadata.goog", "instance-data", "instance-data.ec2.internal",
+]

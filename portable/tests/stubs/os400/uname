@@ -1,0 +1,13 @@
+#!/bin/sh
+# test stub: IBM i PASE uname (format from IBM's documentation, unverified): IBM i 7.5 is version 7, release 5
+printf 'uname %s\n' "$*" >>"${ES_STUB_LOG:-/dev/null}"
+case $1 in
+  -s) printf '%s\n' "OS400" ;;
+  -n) printf '%s\n' "IBMI1" ;;
+  -r) printf '%s\n' "5" ;;
+  -v) printf '%s\n' "7" ;;
+  -m) printf '%s\n' "00C0A5BA4C00" ;;
+  -p) printf '%s\n' "powerpc" ;;
+  -a) printf '%s\n' "OS400 IBMI1 5 7 00C0A5BA4C00" ;;
+  *) printf '%s\n' "uname: illegal option -- $1" >&2; exit 1 ;;
+esac
